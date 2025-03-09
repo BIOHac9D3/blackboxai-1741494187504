@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}ModernStore Admin{% endblock %}</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+    
+    {% block extra_css %}{% endblock %}
+</head>
+<body class="bg-gray-100">
+    <!-- Sidebar -->
+    <aside class="fixed inset-y-0 left-0 bg-gray-800 w-64 transition-transform duration-300 transform md:translate-x-0 {% if hide_sidebar %}-translate-x-full{% endif %}" id="sidebar">
+        <div class="flex items-center justify-between p-4 border-b border-gray-700">
+            <div class="flex items-center space-x-2">
+                <i class="fas fa-store text-2xl text-blue-500"></i>
+                <span class="text-white font-semibold text-lg">ModernStore</span>
+            </div>
+            <button class="md:hidden text-gray-400 hover:text-white" id="close-sidebar">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        
+        <nav class="mt-4">
+            <a href="{{ url_for('admin.dashboard') }}" 
+               class="flex items-center px-4 py-3 text-gray-300 hover:bg-gray-700 hover:text-white {% if request.endpoint == 'admin.dashboard' %}bg-gray-700 text-white{% endif %}">
+                <i class="fas fa-tachometer-alt w-6"></i>
+                <span>Dashboard</span>
+            </a>
+            
+            <a href="{{ url_for('admin.products') }}"
+               class="flex items-center px-4 py-3 text-gray-300 hover:bg-gray-700 hover:text-white {% if request.endpoint == 'admin.products' %}bg-gray-700 text-white{% endif %}">
+                <i class="fas fa-box w-6"></i>
+                <span>Products</span>
+            </a>
+            
+            <a href="{{ url_for('admin.categories') }}"
+               class="flex items-center px-4 py-3 text-gray-300 hover:bg-gray-700 hover:text-white {% if request.endpoint == 'admin.categories' %}bg-gray-700 text-white{% endif %}">
+                <i class="fas fa-tags w-6"></i>
+                <span>Categories</span>
+            </a>
+            
+            <a href="{{ url_for('admin.orders') }}"
+               class="flex items-center px-4 py-3 text-gray-300 hover:bg-gray-700 hover:text-white {% if request.endpoint == 'admin.orders' %}bg-gray-700 text-white{% endif %}">
+                <i class="fas fa-shopping-cart w-6"></i>
+                <span>Orders</span>
+            </a>
+            
+            <a href="{{ url_for('admin.users') }}"
+               class="flex items-center px-4 py-3 text-gray-300 hover:bg-gray-700 hover:text-white {% if request.endpoint == 'admin.users' %}bg-gray-700 text-white{% endif %}">
+                <i class="fas fa-users w-6"></i>
+                <span>Users</span>
+            </a>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="md:ml-64 min-h-screen">
+        <!-- Top Navigation -->
+        <header class="bg-white shadow-sm">
+            <div class="flex items-center justify-between px-4 py-3">
+                <button class="md:hidden text-gray-600" id="open-sidebar">
+                    <i class="fas fa-bars"></i>
+                </button>
+                
+                <div class="flex items-center space-x-4">
+                    <div class="relative">
+                        <button class="flex items-center space-x-2 text-gray-700 hover:text-gray-900" id="user-menu-button">
+                            <span>{{ current_user.username }}</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+                        
+                        <!-- Dropdown Menu -->
+                        <div class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 hidden" id="user-menu">
+                            <a href="{{ url_for('auth.profile') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                Profile
+                            </a>
+                            <a href="{{ url_for('auth.logout') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                Logout
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Page Content -->
+        <main class="p-6">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="mb-4 p-4 rounded-md {% if category == 'error' %}bg-red-100 text-red-700{% else %}bg-green-100 text-green-700{% endif %}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+            
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+        // Sidebar Toggle
+        const sidebar = document.getElementById('sidebar');
+        const openSidebarBtn = document.getElementById('open-sidebar');
+        const closeSidebarBtn = document.getElementById('close-sidebar');
+
+        openSidebarBtn.addEventListener('click', () => {
+            sidebar.classList.remove('-translate-x-full');
+        });
+
+        closeSidebarBtn.addEventListener('click', () => {
+            sidebar.classList.add('-translate-x-full');
+        });
+
+        // User Menu Toggle
+        const userMenuBtn = document.getElementById('user-menu-button');
+        const userMenu = document.getElementById('user-menu');
+
+        userMenuBtn.addEventListener('click', () => {
+            userMenu.classList.toggle('hidden');
+        });
+
+        // Close user menu when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!userMenuBtn.contains(e.target) && !userMenu.contains(e.target)) {
+                userMenu.classList.add('hidden');
+            }
+        });
+    </script>
+    
+    {% block extra_js %}{% endblock %}
+</body>
+</html>
