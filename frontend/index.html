@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ModernStore - Your One-Stop Shop</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/styles.css">
+    
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Header -->
+    <header class="bg-white shadow-sm fixed w-full top-0 z-50">
+        <div class="container mx-auto px-4 py-4">
+            <div class="flex items-center justify-between">
+                <!-- Logo -->
+                <div class="flex items-center space-x-2">
+                    <i class="fas fa-store text-3xl text-blue-600"></i>
+                    <span class="text-2xl font-bold text-gray-800">ModernStore</span>
+                </div>
+                
+                <!-- Search -->
+                <div class="hidden md:flex flex-1 max-w-lg mx-6">
+                    <div class="relative w-full">
+                        <input type="text" 
+                               id="search-input"
+                               placeholder="Search products..." 
+                               class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 search-input">
+                        <button class="absolute right-3 top-2.5 text-gray-400">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Navigation Icons -->
+                <div class="flex items-center space-x-6">
+                    <a href="#" class="text-gray-600 hover:text-blue-600 transition-colors">
+                        <i class="fas fa-user text-xl"></i>
+                    </a>
+                    <a href="#" class="text-gray-600 hover:text-blue-600 transition-colors">
+                        <i class="fas fa-heart text-xl"></i>
+                    </a>
+                    <a href="#" class="text-gray-600 hover:text-blue-600 transition-colors relative">
+                        <i class="fas fa-shopping-cart text-xl"></i>
+                        <span id="cart-badge" 
+                              class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs cart-badge">
+                            0
+                        </span>
+                    </a>
+                    <!-- Mobile Menu Button -->
+                    <button id="mobile-menu-btn" 
+                            class="md:hidden text-gray-600 hover:text-blue-600"
+                            aria-label="Toggle menu"
+                            aria-expanded="false">
+                        <i class="fas fa-bars text-xl"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Navigation Menu -->
+            <nav class="mt-4">
+                <ul class="hidden md:flex space-x-8">
+                    <li><a href="#" class="text-gray-600 hover:text-blue-600 transition-colors">Home</a></li>
+                    <li><a href="#" class="text-gray-600 hover:text-blue-600 transition-colors">Categories</a></li>
+                    <li><a href="#" class="text-gray-600 hover:text-blue-600 transition-colors">New Arrivals</a></li>
+                    <li><a href="#" class="text-gray-600 hover:text-blue-600 transition-colors">Deals</a></li>
+                    <li><a href="#" class="text-gray-600 hover:text-blue-600 transition-colors">Contact</a></li>
+                </ul>
+                <!-- Mobile Menu -->
+                <div id="mobile-menu" class="md:hidden mobile-menu">
+                    <ul class="py-2 space-y-2">
+                        <li><a href="#" class="block px-4 py-2 text-gray-600 hover:bg-gray-100">Home</a></li>
+                        <li><a href="#" class="block px-4 py-2 text-gray-600 hover:bg-gray-100">Categories</a></li>
+                        <li><a href="#" class="block px-4 py-2 text-gray-600 hover:bg-gray-100">New Arrivals</a></li>
+                        <li><a href="#" class="block px-4 py-2 text-gray-600 hover:bg-gray-100">Deals</a></li>
+                        <li><a href="#" class="block px-4 py-2 text-gray-600 hover:bg-gray-100">Contact</a></li>
+                    </ul>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="mt-32">
+        <!-- Hero Section -->
+        <section class="bg-blue-600 text-white py-16">
+            <div class="container mx-auto px-4">
+                <div class="flex flex-col md:flex-row items-center justify-between">
+                    <div class="md:w-1/2 mb-8 md:mb-0 animate-slide-in">
+                        <h1 class="text-4xl md:text-5xl font-bold mb-4">Welcome to ModernStore</h1>
+                        <p class="text-xl mb-6">Discover amazing products at great prices</p>
+                        <button class="bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition duration-300">
+                            Shop Now
+                        </button>
+                    </div>
+                    <div class="md:w-1/2 flex justify-center animate-fade-in">
+                        <i class="fas fa-shopping-bag text-9xl opacity-80"></i>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Featured Categories -->
+        <section class="py-16">
+            <div class="container mx-auto px-4">
+                <h2 class="text-3xl font-bold mb-8">Featured Categories</h2>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+                    <!-- Category Cards -->
+                    <div class="category-card bg-white rounded-lg p-6 text-center shadow-sm">
+                        <i class="fas fa-laptop text-4xl text-blue-600 mb-4"></i>
+                        <h3 class="font-semibold">Electronics</h3>
+                    </div>
+                    <div class="category-card bg-white rounded-lg p-6 text-center shadow-sm">
+                        <i class="fas fa-tshirt text-4xl text-blue-600 mb-4"></i>
+                        <h3 class="font-semibold">Fashion</h3>
+                    </div>
+                    <div class="category-card bg-white rounded-lg p-6 text-center shadow-sm">
+                        <i class="fas fa-home text-4xl text-blue-600 mb-4"></i>
+                        <h3 class="font-semibold">Home & Living</h3>
+                    </div>
+                    <div class="category-card bg-white rounded-lg p-6 text-center shadow-sm">
+                        <i class="fas fa-dumbbell text-4xl text-blue-600 mb-4"></i>
+                        <h3 class="font-semibold">Sports</h3>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Featured Products -->
+        <section class="py-16 bg-gray-100">
+            <div class="container mx-auto px-4">
+                <h2 class="text-3xl font-bold mb-8">Featured Products</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <!-- Product Cards -->
+                    <div class="product-card bg-white rounded-lg overflow-hidden" data-product-id="1">
+                        <div class="p-4">
+                            <div class="bg-gray-200 h-48 rounded-lg flex items-center justify-center mb-4">
+                                <i class="fas fa-laptop text-6xl text-gray-400"></i>
+                            </div>
+                            <h3 class="product-name font-semibold mb-2">Premium Laptop</h3>
+                            <p class="text-gray-600 text-sm mb-2">High performance laptop for professionals</p>
+                            <div class="flex items-center justify-between">
+                                <span class="product-price font-bold text-blue-600" data-price="999.99">$999.99</span>
+                                <button class="add-to-cart-btn bg-blue-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-blue-700 transition duration-300">
+                                    Add to Cart
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- More Product Cards... -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Newsletter Section -->
+        <section class="py-16">
+            <div class="container mx-auto px-4">
+                <div class="bg-blue-600 rounded-lg p-8 md:p-12 text-center text-white">
+                    <h2 class="text-3xl font-bold mb-4">Subscribe to Our Newsletter</h2>
+                    <p class="mb-6">Get the latest updates about new products and upcoming sales</p>
+                    <form id="newsletter-form" class="max-w-md mx-auto flex">
+                        <input type="email" 
+                               placeholder="Enter your email" 
+                               class="flex-1 px-4 py-3 rounded-l-lg text-gray-800 focus:outline-none newsletter-input">
+                        <button type="submit" 
+                                class="bg-white text-blue-600 px-6 py-3 rounded-r-lg font-semibold hover:bg-gray-100 transition duration-300">
+                            Subscribe
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-12">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <!-- Company Info -->
+                <div>
+                    <h3 class="text-xl font-bold mb-4">ModernStore</h3>
+                    <p class="text-gray-400">Your one-stop shop for all things modern and trendy.</p>
+                </div>
+                
+                <!-- Quick Links -->
+                <div>
+                    <h3 class="text-xl font-bold mb-4">Quick Links</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="footer-link text-gray-400">About Us</a></li>
+                        <li><a href="#" class="footer-link text-gray-400">Contact</a></li>
+                        <li><a href="#" class="footer-link text-gray-400">FAQs</a></li>
+                        <li><a href="#" class="footer-link text-gray-400">Shipping Info</a></li>
+                    </ul>
+                </div>
+                
+                <!-- Categories -->
+                <div>
+                    <h3 class="text-xl font-bold mb-4">Categories</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="footer-link text-gray-400">Electronics</a></li>
+                        <li><a href="#" class="footer-link text-gray-400">Fashion</a></li>
+                        <li><a href="#" class="footer-link text-gray-400">Home & Living</a></li>
+                        <li><a href="#" class="footer-link text-gray-400">Sports</a></li>
+                    </ul>
+                </div>
+                
+                <!-- Contact Info -->
+                <div>
+                    <h3 class="text-xl font-bold mb-4">Contact Us</h3>
+                    <ul class="space-y-2">
+                        <li class="flex items-center space-x-2">
+                            <i class="fas fa-envelope"></i>
+                            <span class="text-gray-400">support@modernstore.com</span>
+                        </li>
+                        <li class="flex items-center space-x-2">
+                            <i class="fas fa-phone"></i>
+                            <span class="text-gray-400">+1 234 567 890</span>
+                        </li>
+                        <li class="flex items-center space-x-2">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <span class="text-gray-400">123 Store Street, City, Country</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- Bottom Footer -->
+            <div class="border-t border-gray-700 mt-8 pt-8">
+                <div class="flex flex-col md:flex-row justify-between items-center">
+                    <p class="text-gray-400">&copy; 2024 ModernStore. All rights reserved.</p>
+                    <div class="flex space-x-4 mt-4 md:mt-0">
+                        <a href="#" class="footer-link text-gray-400">
+                            <i class="fab fa-facebook text-xl"></i>
+                        </a>
+                        <a href="#" class="footer-link text-gray-400">
+                            <i class="fab fa-twitter text-xl"></i>
+                        </a>
+                        <a href="#" class="footer-link text-gray-400">
+                            <i class="fab fa-instagram text-xl"></i>
+                        </a>
+                        <a href="#" class="footer-link text-gray-400">
+                            <i class="fab fa-linkedin text-xl"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Custom JavaScript -->
+    <script src="js/main.js"></script>
+</body>
+</html>
