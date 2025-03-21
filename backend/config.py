@@ -7,7 +7,7 @@ from logging.handlers import RotatingFileHandler
 
 class Config:
     # Basic Flask configuration
-    SECRET_KEY = os.environ.get('SECRET_KEY', 'dev-key-please-change-in-production')
+    SECRET_KEY = os.environ.get('SECRET_KEY')  # Ensure SECRET_KEY is set for production
     
     # CMS configuration
     CMS_TITLE = os.environ.get('CMS_TITLE', 'ModernStore CMS')
