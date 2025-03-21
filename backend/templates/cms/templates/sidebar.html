@@ -1,0 +1,173 @@
+{% extends "base.html" %}
+
+{% block title %}{{ page.title }} - {{ cms_title }}{% endblock %}
+
+{% block meta %}
+{% if page.meta_description %}
+<meta name="description" content="{{ page.meta_description }}">
+{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50">
+    <!-- Header -->
+    <header class="bg-white shadow">
+        <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+            <h1 class="text-3xl font-bold text-gray-900">
+                {{ page.title }}
+            </h1>
+            {% if page.meta_description %}
+            <p class="mt-2 text-gray-600">
+                {{ page.meta_description }}
+            </p>
+            {% endif %}
+        </div>
+    </header>
+
+    <!-- Main Content with Sidebar -->
+    <main class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+        <div class="flex flex-col lg:flex-row gap-6">
+            <!-- Main Content -->
+            <div class="flex-1 px-4 sm:px-0">
+                <div class="bg-white overflow-hidden shadow rounded-lg">
+                    {% if page.featured_image %}
+                    <div class="w-full h-64 bg-gray-200">
+                        <img src="{{ page.featured_image }}" 
+                             alt="{{ page.title }}"
+                             class="w-full h-full object-cover">
+                    </div>
+                    {% endif %}
+                    
+                    <div class="px-4 py-5 sm:p-6 prose max-w-none">
+                        {{ page.content|safe }}
+                    </div>
+                    
+                    <div class="px-4 py-4 sm:px-6 bg-gray-50 text-sm text-gray-500">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                Last updated: {{ page.updated_at|datetime }}
+                            </div>
+                            <div>
+                                Author: {{ page.author }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <div class="lg:w-80 px-4 sm:px-0">
+                <!-- Recent Pages -->
+                <div class="bg-white overflow-hidden shadow rounded-lg mb-6">
+                    <div class="px-4 py-5 sm:px-6 border-b border-gray-200">
+                        <h2 class="text-lg font-medium text-gray-900">Recent Pages</h2>
+                    </div>
+                    <div class="px-4 py-5 sm:p-6">
+                        <nav class="space-y-2">
+                            {% for recent_page in recent_pages %}
+                            <a href="{{ url_for('cms.view_page', slug=recent_page.slug) }}" 
+                               class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50">
+                                {{ recent_page.title }}
+                            </a>
+                            {% endfor %}
+                        </nav>
+                    </div>
+                </div>
+
+                <!-- Categories -->
+                <div class="bg-white overflow-hidden shadow rounded-lg mb-6">
+                    <div class="px-4 py-5 sm:px-6 border-b border-gray-200">
+                        <h2 class="text-lg font-medium text-gray-900">Categories</h2>
+                    </div>
+                    <div class="px-4 py-5 sm:p-6">
+                        <nav class="space-y-2">
+                            {% for category in categories %}
+                            <a href="{{ url_for('main.category', slug=category.slug) }}" 
+                               class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50">
+                                {{ category.name }}
+                                <span class="float-right text-gray-500">({{ category.products|length }})</span>
+                            </a>
+                            {% endfor %}
+                        </nav>
+                    </div>
+                </div>
+
+                <!-- Contact Info -->
+                <div class="bg-white overflow-hidden shadow rounded-lg">
+                    <div class="px-4 py-5 sm:px-6 border-b border-gray-200">
+                        <h2 class="text-lg font-medium text-gray-900">Contact Us</h2>
+                    </div>
+                    <div class="px-4 py-5 sm:p-6 space-y-4">
+                        <div class="flex items-center text-gray-700">
+                            <i class="fas fa-envelope w-5 text-gray-400"></i>
+                            <span class="ml-3">support@modernstore.com</span>
+                        </div>
+                        <div class="flex items-center text-gray-700">
+                            <i class="fas fa-phone w-5 text-gray-400"></i>
+                            <span class="ml-3">+1 234 567 890</span>
+                        </div>
+                        <div class="flex items-center text-gray-700">
+                            <i class="fas fa-map-marker-alt w-5 text-gray-400"></i>
+                            <span class="ml-3">123 Store Street, City, Country</span>
+                        </div>
+                        
+                        <!-- Social Links -->
+                        <div class="pt-4 border-t border-gray-200">
+                            <div class="flex space-x-4">
+                                <a href="#" class="text-gray-400 hover:text-gray-500">
+                                    <span class="sr-only">Facebook</span>
+                                    <i class="fab fa-facebook text-xl"></i>
+                                </a>
+                                <a href="#" class="text-gray-400 hover:text-gray-500">
+                                    <span class="sr-only">Twitter</span>
+                                    <i class="fab fa-twitter text-xl"></i>
+                                </a>
+                                <a href="#" class="text-gray-400 hover:text-gray-500">
+                                    <span class="sr-only">Instagram</span>
+                                    <i class="fab fa-instagram text-xl"></i>
+                                </a>
+                                <a href="#" class="text-gray-400 hover:text-gray-500">
+                                    <span class="sr-only">LinkedIn</span>
+                                    <i class="fab fa-linkedin text-xl"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<!-- Back to Top Button -->
+<button id="back-to-top" 
+        class="fixed bottom-8 right-8 p-2 rounded-full bg-blue-600 text-white shadow-lg opacity-0 transition-opacity duration-300 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+    <span class="sr-only">Back to top</span>
+    <i class="fas fa-arrow-up"></i>
+</button>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const backToTopButton = document.getElementById('back-to-top');
+    
+    // Show/hide button based on scroll position
+    window.addEventListener('scroll', () => {
+        if (window.pageYOffset > 300) {
+            backToTopButton.classList.remove('opacity-0');
+        } else {
+            backToTopButton.classList.add('opacity-0');
+        }
+    });
+    
+    // Smooth scroll to top
+    backToTopButton.addEventListener('click', () => {
+        window.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+        });
+    });
+});
+</script>
+{% endblock %}
