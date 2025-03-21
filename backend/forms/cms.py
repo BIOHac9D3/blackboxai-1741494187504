@@ -1,6 +1,7 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, TextAreaField, SelectField, BooleanField, FloatField, IntegerField, FileField
-from wtforms.validators import DataRequired, Length, Optional, URL, NumberRange
+from flask_wtf.file import FileField, FileAllowed
+from wtforms import StringField, TextAreaField, SelectField, BooleanField, FloatField, IntegerField
+from wtforms.validators import DataRequired, Length, Optional, URL, NumberRange, ValidationError
 
 class CategoryForm(FlaskForm):
     name = StringField('Name', validators=[DataRequired(), Length(min=2, max=100)])
@@ -8,14 +9,35 @@ class CategoryForm(FlaskForm):
     description = TextAreaField('Description', validators=[Optional(), Length(max=500)])
 
 class ProductForm(FlaskForm):
-    name = StringField('Name', validators=[DataRequired(), Length(min=2, max=100)])
-    slug = StringField('Slug', validators=[DataRequired(), Length(min=2, max=100)])
-    description = TextAreaField('Description', validators=[Optional(), Length(max=1000)])
-    price = FloatField('Price', validators=[DataRequired(), NumberRange(min=0)])
-    stock = IntegerField('Stock', validators=[DataRequired(), NumberRange(min=0)])
-    category_id = SelectField('Category', coerce=int, validators=[DataRequired()])
-    image = StringField('Image URL', validators=[Optional(), URL()])
-    is_active = BooleanField('Active')
+    name = StringField('Name', validators=[
+        DataRequired(message="Product name is required"),
+        Length(min=2, max=100, message="Name must be between 2 and 100 characters")
+    ])
+    slug = StringField('Slug', validators=[
+        DataRequired(message="Slug is required"),
+        Length(min=2, max=100, message="Slug must be between 2 and 100 characters")
+    ])
+    description = TextAreaField('Description', validators=[
+        Optional(),
+        Length(max=1000, message="Description cannot exceed 1000 characters")
+    ])
+    price = FloatField('Price', validators=[
+        DataRequired(message="Price is required"),
+        NumberRange(min=0, message="Price must be greater than or equal to 0")
+    ])
+    stock = IntegerField('Stock', validators=[
+        DataRequired(message="Stock quantity is required"),
+        NumberRange(min=0, message="Stock must be greater than or equal to 0")
+    ])
+    category_id = SelectField('Category', coerce=int, validators=[
+        DataRequired(message="Please select a category")
+    ])
+    image = FileField('Product Image', validators=[
+        Optional(),
+        FileAllowed(['jpg', 'jpeg', 'png', 'gif', 'webp'], 'Only image files (JPG, PNG, GIF, WEBP) are allowed!')
+    ])
+    image_url = StringField('Image URL', validators=[Optional(), URL(message="Please enter a valid URL")])
+    is_active = BooleanField('Active', default=True)
 
 class PageForm(FlaskForm):
     title = StringField('Title', validators=[DataRequired(), Length(min=2, max=200)])
