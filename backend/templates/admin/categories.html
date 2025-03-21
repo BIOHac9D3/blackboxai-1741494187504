@@ -1,188 +1,276 @@
-{% extends "base.html" %}
+{% extends "admin/base_admin.html" %}
 
-{% block title %}Categories - ModernStore Admin{% endblock %}
+{% block title %}Categories - {{ cms_title }}{% endblock %}
 
-{% block content %}
-<div class="space-y-6">
-    <!-- Page Header -->
-    <div class="flex items-center justify-between">
-        <h1 class="text-2xl font-semibold text-gray-900">Categories</h1>
-        <div class="flex space-x-3">
-            <button id="addCategoryBtn" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition duration-200">
-                <i class="fas fa-plus mr-2"></i>Add Category
-            </button>
-        </div>
+{% block admin_content %}
+<!-- Header -->
+<div class="md:flex md:items-center md:justify-between mb-6">
+    <div class="flex-1 min-w-0">
+        <h2 class="text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:truncate">
+            Categories
+        </h2>
     </div>
-
-    <!-- Categories Table -->
-    <div class="bg-white rounded-lg shadow">
-        <div class="p-6 border-b border-gray-200">
-            <h2 class="text-lg font-semibold text-gray-900">All Categories</h2>
-        </div>
-        <div class="overflow-x-auto">
-            <table class="w-full">
-                <thead>
-                    <tr class="text-left bg-gray-50">
-                        <th class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
-                        <th class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
-                        <th class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Slug</th>
-                        <th class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
-                        <th class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Products</th>
-                        <th class="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-gray-200">
-                    {% for category in categories %}
-                    <tr>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            {{ category.id }}
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            {{ category.name }}
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            {{ category.slug }}
-                        </td>
-                        <td class="px-6 py-4 text-sm text-gray-500">
-                            {{ category.description or 'No description' }}
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            {{ category.products|length }}
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                            <button onclick="editCategory({{ category.id }})" class="text-blue-600 hover:text-blue-900 mr-3">Edit</button>
-                            <button onclick="deleteCategory({{ category.id }})" class="text-red-600 hover:text-red-900">Delete</button>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
+    <div class="mt-4 flex md:mt-0 md:ml-4">
+        <button onclick="openNewCategoryModal()" class="ml-3 inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+            <i class="fas fa-plus mr-2"></i>New Category
+        </button>
     </div>
 </div>
 
-<!-- Add/Edit Category Modal -->
-<div id="categoryModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden overflow-y-auto h-full w-full">
-    <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
-        <div class="mt-3">
-            <h3 class="text-lg font-medium leading-6 text-gray-900 mb-4" id="modalTitle">Add Category</h3>
-            <form id="categoryForm" class="space-y-4">
-                <input type="hidden" id="categoryId">
+<!-- Search -->
+<div class="bg-white shadow rounded-lg mb-6">
+    <div class="p-4">
+        <form method="GET" class="flex gap-4">
+            <div class="flex-1">
+                <label for="search" class="sr-only">Search Categories</label>
+                <div class="relative rounded-md shadow-sm">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <i class="fas fa-search text-gray-400"></i>
+                    </div>
+                    <input type="text" name="search" id="search" value="{{ request.args.get('search', '') }}" class="focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 sm:text-sm border-gray-300 rounded-md" placeholder="Search categories...">
+                </div>
+            </div>
+            <button type="submit" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                Search
+            </button>
+        </form>
+    </div>
+</div>
+
+<!-- Categories List -->
+<div class="bg-white shadow rounded-lg">
+    <div class="px-4 py-5 border-b border-gray-200 sm:px-6">
+        <h3 class="text-lg leading-6 font-medium text-gray-900">
+            All Categories
+        </h3>
+    </div>
+    
+    {% if categories.items %}
+        <ul class="divide-y divide-gray-200">
+            {% for category in categories.items %}
+            <li class="px-4 py-4 hover:bg-gray-50 sm:px-6">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center min-w-0">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-folder text-yellow-500 text-2xl"></i>
+                        </div>
+                        <div class="ml-4">
+                            <p class="text-sm font-medium text-gray-900 truncate">
+                                {{ category.name }}
+                            </p>
+                            <p class="text-sm text-gray-500 truncate">
+                                {{ category.description or 'No description' }}
+                            </p>
+                        </div>
+                    </div>
+                    <div class="flex space-x-2">
+                        <button onclick="editCategory('{{ category.id }}')" class="text-blue-600 hover:text-blue-900">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button onclick="deleteCategory('{{ category.id }}')" class="text-red-600 hover:text-red-900">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+                {% if category.products %}
+                <div class="mt-2">
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                        {{ category.products|length }} products
+                    </span>
+                </div>
+                {% endif %}
+            </li>
+            {% endfor %}
+        </ul>
+        
+        <!-- Pagination -->
+        {% if categories.pages > 1 %}
+        <div class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
+            <div class="flex-1 flex justify-between sm:hidden">
+                {% if categories.has_prev %}
+                <a href="{{ url_for('admin.categories', page=categories.prev_num, search=request.args.get('search', '')) }}" class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                    Previous
+                </a>
+                {% endif %}
+                {% if categories.has_next %}
+                <a href="{{ url_for('admin.categories', page=categories.next_num, search=request.args.get('search', '')) }}" class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                    Next
+                </a>
+                {% endif %}
+            </div>
+            <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
                 <div>
-                    <label for="name" class="block text-sm font-medium text-gray-700">Name</label>
-                    <input type="text" id="name" name="name" required
-                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                    <p class="text-sm text-gray-700">
+                        Showing
+                        <span class="font-medium">{{ categories.items|length }}</span>
+                        results
+                    </p>
                 </div>
                 <div>
-                    <label for="slug" class="block text-sm font-medium text-gray-700">Slug</label>
-                    <input type="text" id="slug" name="slug" required
-                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                    <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+                        {% if categories.has_prev %}
+                        <a href="{{ url_for('admin.categories', page=categories.prev_num, search=request.args.get('search', '')) }}" class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                            <span class="sr-only">Previous</span>
+                            <i class="fas fa-chevron-left"></i>
+                        </a>
+                        {% endif %}
+                        
+                        {% for page in categories.iter_pages() %}
+                            {% if page %}
+                                <a href="{{ url_for('admin.categories', page=page, search=request.args.get('search', '')) }}" class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium {% if page == categories.page %}text-blue-600 bg-blue-50{% else %}text-gray-700 hover:bg-gray-50{% endif %}">
+                                    {{ page }}
+                                </a>
+                            {% else %}
+                                <span class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700">
+                                    ...
+                                </span>
+                            {% endif %}
+                        {% endfor %}
+
+                        {% if categories.has_next %}
+                        <a href="{{ url_for('admin.categories', page=categories.next_num, search=request.args.get('search', '')) }}" class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                            <span class="sr-only">Next</span>
+                            <i class="fas fa-chevron-right"></i>
+                        </a>
+                        {% endif %}
+                    </nav>
                 </div>
-                <div>
-                    <label for="description" class="block text-sm font-medium text-gray-700">Description</label>
-                    <textarea id="description" name="description" rows="3"
-                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"></textarea>
+            </div>
+        </div>
+        {% endif %}
+    {% else %}
+        <div class="px-4 py-5 text-center text-gray-500 sm:px-6">
+            No categories found
+        </div>
+    {% endif %}
+</div>
+
+<!-- New/Edit Category Modal -->
+<div id="categoryModal" class="fixed z-10 inset-0 overflow-y-auto hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+    <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"></div>
+        <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+        <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+            <form id="categoryForm" method="POST">
+                {{ form.csrf_token }}
+                <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                    <div class="sm:flex sm:items-start">
+                        <div class="mt-3 text-center sm:mt-0 sm:text-left w-full">
+                            <h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title">
+                                New Category
+                            </h3>
+                            <div class="mt-4 space-y-4">
+                                <div>
+                                    <label for="name" class="block text-sm font-medium text-gray-700">Name</label>
+                                    <input type="text" name="name" id="name" required class="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">
+                                </div>
+                                <div>
+                                    <label for="slug" class="block text-sm font-medium text-gray-700">Slug</label>
+                                    <input type="text" name="slug" id="slug" required class="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">
+                                </div>
+                                <div>
+                                    <label for="description" class="block text-sm font-medium text-gray-700">Description</label>
+                                    <textarea name="description" id="description" rows="3" class="mt-1 focus:ring-blue-500 focus:border-blue-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div class="flex justify-end space-x-3">
-                    <button type="button" onclick="closeModal()"
-                            class="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300">
-                        Cancel
-                    </button>
-                    <button type="submit"
-                            class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+                <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                    <button type="submit" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm">
                         Save
+                    </button>
+                    <button type="button" onclick="closeCategoryModal()" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
+                        Cancel
                     </button>
                 </div>
             </form>
         </div>
     </div>
 </div>
+
+<!-- Delete Confirmation Modal -->
+<div id="deleteModal" class="fixed z-10 inset-0 overflow-y-auto hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+    <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"></div>
+        <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+        <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+            <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                <div class="sm:flex sm:items-start">
+                    <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-red-100 sm:mx-0 sm:h-10 sm:w-10">
+                        <i class="fas fa-exclamation-triangle text-red-600"></i>
+                    </div>
+                    <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
+                        <h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title">
+                            Delete Category
+                        </h3>
+                        <div class="mt-2">
+                            <p class="text-sm text-gray-500">
+                                Are you sure you want to delete this category? This action cannot be undone.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                <form id="deleteForm" method="POST">
+                    {{ form.csrf_token }}
+                    <input type="hidden" name="_method" value="DELETE">
+                    <button type="submit" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:ml-3 sm:w-auto sm:text-sm">
+                        Delete
+                    </button>
+                </form>
+                <button type="button" onclick="closeDeleteModal()" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
+                    Cancel
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}
 
-{% block extra_js %}
+{% block scripts %}
 <script>
-const modal = document.getElementById('categoryModal');
-const form = document.getElementById('categoryForm');
-const modalTitle = document.getElementById('modalTitle');
-const nameInput = document.getElementById('name');
-const slugInput = document.getElementById('slug');
-const descInput = document.getElementById('description');
-const idInput = document.getElementById('categoryId');
+function openNewCategoryModal() {
+    document.getElementById('categoryModal').classList.remove('hidden');
+    document.getElementById('modal-title').textContent = 'New Category';
+    document.getElementById('categoryForm').reset();
+    document.getElementById('categoryForm').action = "{{ url_for('admin.create_category') }}";
+}
 
-document.getElementById('addCategoryBtn').addEventListener('click', () => {
-    modalTitle.textContent = 'Add Category';
-    form.reset();
-    idInput.value = '';
-    modal.classList.remove('hidden');
-});
-
-function closeModal() {
-    modal.classList.add('hidden');
+function closeCategoryModal() {
+    document.getElementById('categoryModal').classList.add('hidden');
 }
 
 function editCategory(id) {
-    modalTitle.textContent = 'Edit Category';
-    // Fetch category data and populate form
-    fetch(`/api/categories/${id}`)
+    fetch(`/admin/categories/${id}`)
         .then(response => response.json())
         .then(category => {
-            idInput.value = category.id;
-            nameInput.value = category.name;
-            slugInput.value = category.slug;
-            descInput.value = category.description || '';
-            modal.classList.remove('hidden');
+            document.getElementById('name').value = category.name;
+            document.getElementById('slug').value = category.slug;
+            document.getElementById('description').value = category.description || '';
+            document.getElementById('modal-title').textContent = 'Edit Category';
+            document.getElementById('categoryForm').action = `/admin/categories/${id}`;
+            document.getElementById('categoryModal').classList.remove('hidden');
         });
 }
 
 function deleteCategory(id) {
-    if (confirm('Are you sure you want to delete this category?')) {
-        fetch(`/api/categories/${id}`, { method: 'DELETE' })
-            .then(response => {
-                if (response.ok) {
-                    window.location.reload();
-                } else {
-                    alert('Failed to delete category');
-                }
-            });
-    }
+    document.getElementById('deleteForm').action = `/admin/categories/${id}`;
+    document.getElementById('deleteModal').classList.remove('hidden');
+}
+
+function closeDeleteModal() {
+    document.getElementById('deleteModal').classList.add('hidden');
 }
 
 // Auto-generate slug from name
-nameInput.addEventListener('input', () => {
-    if (!idInput.value) {  // Only auto-generate for new categories
-        slugInput.value = nameInput.value
-            .toLowerCase()
-            .replace(/[^a-z0-9]+/g, '-')
-            .replace(/^-+|-+$/g, '');
-    }
-});
-
-form.addEventListener('submit', (e) => {
-    e.preventDefault();
-    const data = {
-        name: nameInput.value,
-        slug: slugInput.value,
-        description: descInput.value
-    };
-    
-    const id = idInput.value;
-    const method = id ? 'PUT' : 'POST';
-    const url = id ? `/api/categories/${id}` : '/api/categories';
-    
-    fetch(url, {
-        method: method,
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(data)
-    })
-    .then(response => {
-        if (response.ok) {
-            window.location.reload();
-        } else {
-            alert('Failed to save category');
-        }
-    });
+document.getElementById('name').addEventListener('input', function(e) {
+    const slug = e.target.value
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/(^-|-$)/g, '');
+    document.getElementById('slug').value = slug;
 });
 </script>
 {% endblock %}
