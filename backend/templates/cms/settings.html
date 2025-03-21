@@ -1,0 +1,287 @@
+{% extends "base.html" %}
+
+{% block title %}{{ cms_title }} - Settings{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-100">
+    <!-- CMS Navigation -->
+    <nav class="bg-white shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex">
+                    <div class="flex-shrink-0 flex items-center">
+                        <span class="text-2xl font-bold text-gray-800">{{ cms_title }}</span>
+                    </div>
+                    <div class="hidden sm:ml-6 sm:flex sm:space-x-8">
+                        <a href="{{ url_for('cms.dashboard') }}" 
+                           class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                            Dashboard
+                        </a>
+                        <a href="{{ url_for('admin.products') }}"
+                           class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                            Products
+                        </a>
+                        <a href="{{ url_for('admin.categories') }}"
+                           class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                            Categories
+                        </a>
+                        <a href="{{ url_for('cms.media_library') }}"
+                           class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                            Media
+                        </a>
+                        <a href="{{ url_for('cms.settings') }}"
+                           class="border-blue-500 text-gray-900 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                            Settings
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="py-6">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <!-- Settings Sections -->
+            <div class="bg-white shadow rounded-lg divide-y divide-gray-200">
+                <!-- General Settings -->
+                <div class="p-6">
+                    <form action="{{ url_for('cms.update_settings') }}" method="POST" class="space-y-6">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        
+                        <div>
+                            <h2 class="text-lg leading-6 font-medium text-gray-900">General Settings</h2>
+                            <p class="mt-1 text-sm text-gray-500">
+                                Basic configuration for your CMS
+                            </p>
+                        </div>
+
+                        <div class="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
+                            <div class="sm:col-span-4">
+                                <label for="site_title" class="block text-sm font-medium text-gray-700">
+                                    Site Title
+                                </label>
+                                <div class="mt-1">
+                                    <input type="text" 
+                                           name="site_title" 
+                                           id="site_title"
+                                           value="{{ config.get('CMS_TITLE', 'ModernStore CMS') }}"
+                                           class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md">
+                                </div>
+                            </div>
+
+                            <div class="sm:col-span-4">
+                                <label for="items_per_page" class="block text-sm font-medium text-gray-700">
+                                    Items Per Page
+                                </label>
+                                <div class="mt-1">
+                                    <input type="number" 
+                                           name="items_per_page" 
+                                           id="items_per_page"
+                                           value="{{ config.get('CMS_ITEMS_PER_PAGE', 10) }}"
+                                           min="5"
+                                           max="100"
+                                           class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Media Settings -->
+                        <div class="pt-6">
+                            <h2 class="text-lg leading-6 font-medium text-gray-900">Media Settings</h2>
+                            <p class="mt-1 text-sm text-gray-500">
+                                Configure media upload settings
+                            </p>
+                        </div>
+
+                        <div class="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
+                            <div class="sm:col-span-4">
+                                <label for="max_upload_size" class="block text-sm font-medium text-gray-700">
+                                    Maximum Upload Size (MB)
+                                </label>
+                                <div class="mt-1">
+                                    <input type="number" 
+                                           name="max_upload_size" 
+                                           id="max_upload_size"
+                                           value="{{ (config.get('CMS_MAX_CONTENT_LENGTH', 50 * 1024 * 1024) / (1024 * 1024))|int }}"
+                                           min="1"
+                                           max="100"
+                                           class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md">
+                                </div>
+                            </div>
+
+                            <div class="sm:col-span-4">
+                                <label for="allowed_extensions" class="block text-sm font-medium text-gray-700">
+                                    Allowed File Extensions
+                                </label>
+                                <div class="mt-1">
+                                    <input type="text" 
+                                           name="allowed_extensions" 
+                                           id="allowed_extensions"
+                                           value="{{ ','.join(config.get('CMS_ALLOWED_FILE_TYPES', {}).get('image', [])) }}"
+                                           placeholder="jpg,jpeg,png,gif"
+                                           class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md">
+                                    <p class="mt-2 text-sm text-gray-500">Comma-separated list of allowed file extensions</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Cache Settings -->
+                        <div class="pt-6">
+                            <h2 class="text-lg leading-6 font-medium text-gray-900">Cache Settings</h2>
+                            <p class="mt-1 text-sm text-gray-500">
+                                Configure caching behavior
+                            </p>
+                        </div>
+
+                        <div class="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
+                            <div class="sm:col-span-4">
+                                <label for="cache_timeout" class="block text-sm font-medium text-gray-700">
+                                    Cache Timeout (seconds)
+                                </label>
+                                <div class="mt-1">
+                                    <input type="number" 
+                                           name="cache_timeout" 
+                                           id="cache_timeout"
+                                           value="{{ config.get('CACHE_DEFAULT_TIMEOUT', 300) }}"
+                                           min="0"
+                                           class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md">
+                                </div>
+                            </div>
+
+                            <div class="sm:col-span-4">
+                                <div class="flex items-start">
+                                    <div class="flex items-center h-5">
+                                        <input type="checkbox" 
+                                               name="enable_cache" 
+                                               id="enable_cache"
+                                               {% if config.get('CACHE_TYPE') != 'null' %}checked{% endif %}
+                                               class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 rounded">
+                                    </div>
+                                    <div class="ml-3 text-sm">
+                                        <label for="enable_cache" class="font-medium text-gray-700">Enable Caching</label>
+                                        <p class="text-gray-500">Enable caching for better performance</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Submit Button -->
+                        <div class="pt-6">
+                            <div class="flex justify-end">
+                                <button type="submit"
+                                        class="ml-3 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                                    Save Settings
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Maintenance Mode -->
+                <div class="p-6">
+                    <div class="flex items-start">
+                        <div class="flex items-center h-5">
+                            <input type="checkbox" 
+                                   id="maintenance_mode"
+                                   class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 rounded">
+                        </div>
+                        <div class="ml-3 text-sm">
+                            <label for="maintenance_mode" class="font-medium text-gray-700">Maintenance Mode</label>
+                            <p class="text-gray-500">Enable maintenance mode to temporarily disable the site</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Clear Cache -->
+                <div class="p-6">
+                    <button type="button" 
+                            onclick="clearCache()"
+                            class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
+                        <i class="fas fa-trash-alt mr-2"></i>
+                        Clear Cache
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Toast Notification -->
+<div id="toast" 
+     class="fixed bottom-4 right-4 px-4 py-2 bg-gray-900 text-white rounded-lg shadow-lg transform transition-transform duration-300 translate-y-full">
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const maintenanceMode = document.getElementById('maintenance_mode');
+    
+    // Toggle maintenance mode
+    maintenanceMode.addEventListener('change', async function() {
+        try {
+            const response = await fetch("{{ url_for('cms.update_settings') }}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': "{{ csrf_token() }}"
+                },
+                body: JSON.stringify({
+                    maintenance_mode: this.checked
+                })
+            });
+            
+            const data = await response.json();
+            
+            if (response.ok) {
+                showToast('Settings updated successfully', 'success');
+            } else {
+                showToast(data.error, 'error');
+                // Revert checkbox if update failed
+                this.checked = !this.checked;
+            }
+        } catch (error) {
+            showToast('Failed to update settings', 'error');
+            this.checked = !this.checked;
+        }
+    });
+});
+
+// Clear cache
+async function clearCache() {
+    if (!confirm('Are you sure you want to clear the cache?')) return;
+    
+    try {
+        const response = await fetch("{{ url_for('cms.clear_cache') }}", {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': "{{ csrf_token() }}"
+            }
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok) {
+            showToast('Cache cleared successfully', 'success');
+        } else {
+            showToast(data.error, 'error');
+        }
+    } catch (error) {
+        showToast('Failed to clear cache', 'error');
+    }
+}
+
+// Show toast notification
+function showToast(message, type = 'success') {
+    const toast = document.getElementById('toast');
+    toast.textContent = message;
+    toast.classList.remove('translate-y-full');
+    toast.classList.add(type === 'success' ? 'bg-green-600' : 'bg-red-600');
+    
+    setTimeout(() => {
+        toast.classList.add('translate-y-full');
+    }, 3000);
+}
+</script>
+{% endblock %}
