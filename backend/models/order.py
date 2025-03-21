@@ -21,15 +21,24 @@ class Order(db.Model):
     def calculate_total(self):
         return sum(item.subtotal for item in self.items)
     
+    # Add relationship to User model
+    user = db.relationship('User', backref='orders', lazy=True)
+
     def to_dict(self):
         return {
             'id': self.id,
             'user_id': self.user_id,
+            'user': {
+                'id': self.user.id,
+                'name': self.user.name,
+                'email': self.user.email
+            } if self.user else None,
             'status': self.status,
             'total_amount': self.total_amount,
             'shipping_address': self.shipping_address,
             'billing_address': self.billing_address,
             'payment_status': self.payment_status,
+            'payment_id': self.payment_id,
             'items': [item.to_dict() for item in self.items],
             'created_at': self.created_at.isoformat(),
             'updated_at': self.updated_at.isoformat()
@@ -48,11 +57,19 @@ class OrderItem(db.Model):
     def subtotal(self):
         return self.price * self.quantity
     
+    # Add relationship to Product model
+    product = db.relationship('Product', backref='order_items', lazy=True)
+
     def to_dict(self):
         return {
             'id': self.id,
             'product_id': self.product_id,
-            'product_name': self.product.name,
+            'product': {
+                'id': self.product.id,
+                'name': self.product.name,
+                'price': self.product.price,
+                'image': self.product.image
+            } if self.product else None,
             'quantity': self.quantity,
             'price': self.price,
             'subtotal': self.subtotal
