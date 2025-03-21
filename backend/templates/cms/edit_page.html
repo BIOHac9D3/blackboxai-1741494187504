@@ -1,0 +1,303 @@
+{% extends "base.html" %}
+
+{% block title %}{{ cms_title }} - {% if page %}Edit{% else %}New{% endif %} Page{% endblock %}
+
+{% block styles %}
+<!-- CKEditor -->
+{{ ckeditor.load() }}
+{{ ckeditor.config(name='content') }}
+{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-100">
+    <!-- CMS Navigation -->
+    <nav class="bg-white shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex">
+                    <div class="flex-shrink-0 flex items-center">
+                        <span class="text-2xl font-bold text-gray-800">{{ cms_title }}</span>
+                    </div>
+                    <div class="hidden sm:ml-6 sm:flex sm:space-x-8">
+                        <a href="{{ url_for('cms.dashboard') }}" 
+                           class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                            Dashboard
+                        </a>
+                        <a href="{{ url_for('cms.pages') }}"
+                           class="border-blue-500 text-gray-900 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                            Pages
+                        </a>
+                        <a href="{{ url_for('cms.media_library') }}"
+                           class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                            Media
+                        </a>
+                        <a href="{{ url_for('cms.settings') }}"
+                           class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                            Settings
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="py-6">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <form method="POST" enctype="multipart/form-data" class="space-y-6">
+                {{ form.csrf_token }}
+                
+                <div class="bg-white shadow rounded-lg">
+                    <!-- Header -->
+                    <div class="px-4 py-5 border-b border-gray-200 sm:px-6">
+                        <div class="flex items-center justify-between">
+                            <h2 class="text-lg leading-6 font-medium text-gray-900">
+                                {% if page %}Edit{% else %}New{% endif %} Page
+                            </h2>
+                            <div class="flex space-x-3">
+                                <button type="submit" 
+                                        name="action" 
+                                        value="draft"
+                                        class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                                    <i class="fas fa-save mr-2"></i>
+                                    Save Draft
+                                </button>
+                                <button type="submit"
+                                        name="action"
+                                        value="publish"
+                                        class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                                    <i class="fas fa-check-circle mr-2"></i>
+                                    {% if page and page.status == 'published' %}Update{% else %}Publish{% endif %}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Form Fields -->
+                    <div class="px-4 py-5 space-y-6 sm:px-6">
+                        <!-- Title -->
+                        <div>
+                            <label for="title" class="block text-sm font-medium text-gray-700">
+                                Title
+                            </label>
+                            <div class="mt-1">
+                                {{ form.title(class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md") }}
+                            </div>
+                            {% if form.title.errors %}
+                            <p class="mt-2 text-sm text-red-600">
+                                {{ form.title.errors[0] }}
+                            </p>
+                            {% endif %}
+                        </div>
+
+                        <!-- Slug -->
+                        <div>
+                            <label for="slug" class="block text-sm font-medium text-gray-700">
+                                URL Slug
+                            </label>
+                            <div class="mt-1">
+                                {{ form.slug(class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md") }}
+                            </div>
+                            {% if form.slug.errors %}
+                            <p class="mt-2 text-sm text-red-600">
+                                {{ form.slug.errors[0] }}
+                            </p>
+                            {% endif %}
+                            <p class="mt-2 text-sm text-gray-500">
+                                Leave blank to auto-generate from title
+                            </p>
+                        </div>
+
+                        <!-- Content -->
+                        <div>
+                            <label for="content" class="block text-sm font-medium text-gray-700">
+                                Content
+                            </label>
+                            <div class="mt-1">
+                                {{ form.content }}
+                            </div>
+                            {% if form.content.errors %}
+                            <p class="mt-2 text-sm text-red-600">
+                                {{ form.content.errors[0] }}
+                            </p>
+                            {% endif %}
+                        </div>
+
+                        <!-- Meta Description -->
+                        <div>
+                            <label for="meta_description" class="block text-sm font-medium text-gray-700">
+                                Meta Description
+                            </label>
+                            <div class="mt-1">
+                                {{ form.meta_description(class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md", rows="3") }}
+                            </div>
+                            {% if form.meta_description.errors %}
+                            <p class="mt-2 text-sm text-red-600">
+                                {{ form.meta_description.errors[0] }}
+                            </p>
+                            {% endif %}
+                        </div>
+
+                        <!-- Featured Image -->
+                        <div>
+                            <label for="featured_image" class="block text-sm font-medium text-gray-700">
+                                Featured Image
+                            </label>
+                            <div class="mt-1 flex items-center space-x-4">
+                                {% if page and page.featured_image %}
+                                <div class="flex-shrink-0 h-32 w-32">
+                                    <img src="{{ page.featured_image }}" 
+                                         alt="Featured image"
+                                         class="h-32 w-32 object-cover rounded">
+                                </div>
+                                {% endif %}
+                                <div class="flex-1">
+                                    {{ form.featured_image(class="focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md") }}
+                                </div>
+                            </div>
+                            {% if form.featured_image.errors %}
+                            <p class="mt-2 text-sm text-red-600">
+                                {{ form.featured_image.errors[0] }}
+                            </p>
+                            {% endif %}
+                        </div>
+
+                        <!-- Template and Status -->
+                        <div class="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-2">
+                            <div>
+                                <label for="template" class="block text-sm font-medium text-gray-700">
+                                    Template
+                                </label>
+                                <div class="mt-1">
+                                    {{ form.template(class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md") }}
+                                </div>
+                                {% if form.template.errors %}
+                                <p class="mt-2 text-sm text-red-600">
+                                    {{ form.template.errors[0] }}
+                                </p>
+                                {% endif %}
+                            </div>
+
+                            <div>
+                                <label for="status" class="block text-sm font-medium text-gray-700">
+                                    Status
+                                </label>
+                                <div class="mt-1">
+                                    {{ form.status(class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md") }}
+                                </div>
+                                {% if form.status.errors %}
+                                <p class="mt-2 text-sm text-red-600">
+                                    {{ form.status.errors[0] }}
+                                </p>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Display Order and Visibility -->
+                        <div class="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-2">
+                            <div>
+                                <label for="order" class="block text-sm font-medium text-gray-700">
+                                    Display Order
+                                </label>
+                                <div class="mt-1">
+                                    {{ form.order(class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md") }}
+                                </div>
+                                {% if form.order.errors %}
+                                <p class="mt-2 text-sm text-red-600">
+                                    {{ form.order.errors[0] }}
+                                </p>
+                                {% endif %}
+                            </div>
+
+                            <div>
+                                <div class="flex items-start mt-6">
+                                    <div class="flex items-center h-5">
+                                        {{ form.is_visible(class="focus:ring-blue-500 h-4 w-4 text-blue-600 border-gray-300 rounded") }}
+                                    </div>
+                                    <div class="ml-3 text-sm">
+                                        <label for="is_visible" class="font-medium text-gray-700">
+                                            Visible in Navigation
+                                        </label>
+                                        <p class="text-gray-500">Show this page in navigation menus</p>
+                                    </div>
+                                </div>
+                                {% if form.is_visible.errors %}
+                                <p class="mt-2 text-sm text-red-600">
+                                    {{ form.is_visible.errors[0] }}
+                                </p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Toast Notification -->
+<div id="toast" 
+     class="fixed bottom-4 right-4 px-4 py-2 bg-gray-900 text-white rounded-lg shadow-lg transform transition-transform duration-300 translate-y-full">
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const titleInput = document.getElementById('title');
+    const slugInput = document.getElementById('slug');
+    
+    // Auto-generate slug from title
+    titleInput.addEventListener('input', () => {
+        if (!slugInput.value) {
+            slugInput.value = titleInput.value
+                .toLowerCase()
+                .replace(/[^\w\s-]/g, '')
+                .replace(/\s+/g, '-');
+        }
+    });
+    
+    // Form submission handling
+    const form = document.querySelector('form');
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const formData = new FormData(form);
+        const action = e.submitter.value;
+        formData.append('action', action);
+        
+        try {
+            const response = await fetch(form.action, {
+                method: 'POST',
+                body: formData
+            });
+            
+            const data = await response.json();
+            
+            if (response.ok) {
+                showToast('Page saved successfully', 'success');
+                setTimeout(() => {
+                    window.location.href = "{{ url_for('cms.pages') }}";
+                }, 1000);
+            } else {
+                showToast(data.error, 'error');
+            }
+        } catch (error) {
+            showToast('Failed to save page', 'error');
+        }
+    });
+});
+
+// Show toast notification
+function showToast(message, type = 'success') {
+    const toast = document.getElementById('toast');
+    toast.textContent = message;
+    toast.classList.remove('translate-y-full');
+    toast.classList.add(type === 'success' ? 'bg-green-600' : 'bg-red-600');
+    
+    setTimeout(() => {
+        toast.classList.add('translate-y-full');
+    }, 3000);
+}
+</script>
+{% endblock %}
