@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+
+{% block title %}{{ page.title }} - {{ cms_title }}{% endblock %}
+
+{% block meta %}
+{% if page.meta_description %}
+<meta name="description" content="{{ page.meta_description }}">
+{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50">
+    <!-- Hero Section with Featured Image -->
+    {% if page.featured_image %}
+    <div class="relative">
+        <div class="absolute inset-0">
+            <img class="w-full h-96 object-cover" 
+                 src="{{ page.featured_image }}" 
+                 alt="{{ page.title }}">
+            <div class="absolute inset-0 bg-gray-900 bg-opacity-50"></div>
+        </div>
+        <div class="relative max-w-7xl mx-auto py-24 px-4 sm:py-32 sm:px-6 lg:px-8">
+            <h1 class="text-4xl font-extrabold tracking-tight text-white sm:text-5xl lg:text-6xl">
+                {{ page.title }}
+            </h1>
+            {% if page.meta_description %}
+            <p class="mt-6 text-xl text-gray-300 max-w-3xl">
+                {{ page.meta_description }}
+            </p>
+            {% endif %}
+        </div>
+    </div>
+    {% else %}
+    <!-- Header without Featured Image -->
+    <header class="bg-white shadow">
+        <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+            <h1 class="text-3xl font-bold text-gray-900">
+                {{ page.title }}
+            </h1>
+            {% if page.meta_description %}
+            <p class="mt-2 text-gray-600">
+                {{ page.meta_description }}
+            </p>
+            {% endif %}
+        </div>
+    </header>
+    {% endif %}
+
+    <!-- Main Content -->
+    <main>
+        <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+            <div class="bg-white overflow-hidden shadow rounded-lg">
+                <div class="px-4 py-5 sm:p-6 prose max-w-none">
+                    {{ page.content|safe }}
+                </div>
+                
+                <div class="px-4 py-4 sm:px-6 bg-gray-50 text-sm text-gray-500">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            Last updated: {{ page.updated_at|datetime }}
+                        </div>
+                        <div>
+                            Author: {{ page.author }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<!-- Back to Top Button -->
+<button id="back-to-top" 
+        class="fixed bottom-8 right-8 p-2 rounded-full bg-blue-600 text-white shadow-lg opacity-0 transition-opacity duration-300 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+    <span class="sr-only">Back to top</span>
+    <i class="fas fa-arrow-up"></i>
+</button>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const backToTopButton = document.getElementById('back-to-top');
+    
+    // Show/hide button based on scroll position
+    window.addEventListener('scroll', () => {
+        if (window.pageYOffset > 300) {
+            backToTopButton.classList.remove('opacity-0');
+        } else {
+            backToTopButton.classList.add('opacity-0');
+        }
+    });
+    
+    // Smooth scroll to top
+    backToTopButton.addEventListener('click', () => {
+        window.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+        });
+    });
+});
+</script>
+{% endblock %}
