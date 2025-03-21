@@ -1,0 +1,13 @@
+{% extends "errors/base_error.html" %}
+
+{% block title %}403 Forbidden{% endblock %}
+
+{% block error_icon %}
+<i class="fas fa-ban text-6xl text-red-500"></i>
+{% endblock %}
+
+{% block error_code %}403{% endblock %}
+
+{% block error_message %}
+Forbidden - You don't have permission to access this resource.
+{% endblock %}
