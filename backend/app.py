@@ -30,7 +30,7 @@ def register_extensions(app):
     cache.init_app(app)
 
 def create_app():
-    app = Flask(__name__)
+    app = Flask(__name__, instance_relative_config=True)
     
     @app.before_request
     def handle_method_override():
