@@ -15,16 +15,39 @@ def generate_unique_filename(filename):
     ext = filename.rsplit('.', 1)[1].lower() if '.' in filename else ''
     return f"{uuid.uuid4().hex}.{ext}"
 
-def allowed_file(filename):
-    """Check if the file extension is allowed."""
-    return '.' in filename and \
-           filename.rsplit('.', 1)[1].lower() in current_app.config['ALLOWED_EXTENSIONS']
-
-def save_image(file, folder='products'):
-    """Save an image file and return its path."""
-    if not file or not allowed_file(file.filename):
-        return None
+def allowed_file(filename, allowed_types=None):
+    """
+    Check if the file extension is allowed.
     
+    Args:
+        filename: The name of the file to check
+        allowed_types: Optional dict of allowed file types by category (e.g., {'image': ['.jpg', '.png']})
+                      If None, uses ALLOWED_EXTENSIONS from config
+    """
+    if not '.' in filename:
+        return False
+        
+    ext = filename.rsplit('.', 1)[1].lower()
+    
+    if allowed_types:
+        # Check against all categories in allowed_types
+        return any(ext in types for types in allowed_types.values())
+    
+    return ext in current_app.config['ALLOWED_EXTENSIONS']
+
+def save_file(file, folder='uploads', is_image=True, max_size=None):
+    """
+    Save a file and return its path.
+    
+    Args:
+        file: The file object to save
+        folder: The subfolder to save the file in
+        is_image: Whether the file is an image (will be processed if True)
+        max_size: Optional tuple of (width, height) for max image dimensions
+    """
+    if not file:
+        return None
+        
     filename = secure_filename(file.filename)
     unique_filename = generate_unique_filename(filename)
     
@@ -34,14 +57,28 @@ def save_image(file, folder='products'):
     
     filepath = os.path.join(folder_path, unique_filename)
     
-    # Save and optimize image
     try:
-        image = Image.open(file)
-        image.thumbnail((800, 800))  # Resize if too large
-        image.save(filepath, optimize=True, quality=85)
+        if is_image:
+            image = Image.open(file)
+            
+            # Convert RGBA to RGB if necessary
+            if image.mode == 'RGBA':
+                background = Image.new('RGB', image.size, (255, 255, 255))
+                background.paste(image, mask=image.split()[3])
+                image = background
+            
+            # Resize if dimensions are provided
+            if max_size:
+                image.thumbnail(max_size)
+            
+            # Save with optimization
+            image.save(filepath, optimize=True, quality=85)
+        else:
+            file.save(filepath)
+            
         return f"/static/uploads/{folder}/{unique_filename}"
     except Exception as e:
-        current_app.logger.error(f"Error saving image: {str(e)}")
+        current_app.logger.error(f"Error saving file: {str(e)}")
         return None
 
 def generate_reset_token(user_id):
@@ -139,31 +176,136 @@ def rate_limit(requests_per_minute=60):
         return decorated_function
     return decorator
 
-def log_activity(action, details=None):
-    """Log user activity."""
-    # Implementation would go here
-    # For now, just log to app logger
-    current_app.logger.info(
-        f"User {current_user.id if current_user.is_authenticated else 'Anonymous'} "
-        f"performed {action} - {details or ''}"
-    )
+def log_activity(action, details=None, level='info'):
+    """
+    Log user activity with enhanced details.
+    
+    Args:
+        action: The action being performed
+        details: Additional details about the action
+        level: Log level ('info', 'warning', 'error')
+    """
+    user_info = (f"User {current_user.username} ({current_user.id})"
+                 if current_user.is_authenticated else "Anonymous")
+    
+    log_message = f"{user_info} performed {action}"
+    if details:
+        log_message += f" - {details}"
+    
+    # Add request information
+    log_message += f" | IP: {request.remote_addr}"
+    log_message += f" | URL: {request.url}"
+    log_message += f" | Method: {request.method}"
+    
+    # Log at appropriate level
+    logger = current_app.logger
+    if level == 'warning':
+        logger.warning(log_message)
+    elif level == 'error':
+        logger.error(log_message)
+    else:
+        logger.info(log_message)
 
-def sanitize_filename(filename):
-    """Sanitize a filename to be safe for the filesystem."""
-    # Remove any directory components
+def sanitize_filename(filename, max_length=255):
+    """
+    Sanitize a filename to be safe for the filesystem with enhanced security.
+    
+    Args:
+        filename: The filename to sanitize
+        max_length: Maximum allowed filename length
+    """
+    # Remove any directory components and hidden file indicators
     filename = os.path.basename(filename)
+    filename = filename.lstrip('.')
     
     # Remove any non-alphanumeric characters except for periods and hyphens
     filename = re.sub(r'[^a-zA-Z0-9.-]', '_', filename)
     
-    # Ensure the filename isn't too long
-    max_length = 255
+    # Ensure at least one character before extension
     name, ext = os.path.splitext(filename)
-    if len(filename) > max_length:
+    if not name:
+        name = 'file'
+    
+    # Ensure extension is lowercase
+    ext = ext.lower()
+    
+    # Ensure the filename isn't too long
+    if len(name) + len(ext) > max_length:
         return name[:max_length-len(ext)] + ext
     
-    return filename
+    return name + ext
+
+def get_file_info(filepath):
+    """
+    Get detailed information about a file.
+    
+    Returns:
+        dict: File information including size, type, dimensions (if image), etc.
+    """
+    if not os.path.exists(filepath):
+        return None
+        
+    stats = os.stat(filepath)
+    ext = os.path.splitext(filepath)[1].lower()
+    
+    info = {
+        'size': stats.st_size,
+        'created': datetime.fromtimestamp(stats.st_ctime),
+        'modified': datetime.fromtimestamp(stats.st_mtime),
+        'extension': ext,
+        'mime_type': None,
+        'dimensions': None
+    }
+    
+    # Try to determine MIME type
+    import mimetypes
+    info['mime_type'] = mimetypes.guess_type(filepath)[0]
+    
+    # Get image dimensions if applicable
+    if ext in ['.jpg', '.jpeg', '.png', '.gif', '.webp']:
+        try:
+            with Image.open(filepath) as img:
+                info['dimensions'] = img.size
+        except:
+            pass
+            
+    return info
 
 def get_file_extension(filename):
-    """Get the file extension from a filename."""
+    """Get the lowercase file extension from a filename."""
     return os.path.splitext(filename)[1].lower()
+
+def get_human_readable_size(size_in_bytes):
+    """Convert file size in bytes to human readable format."""
+    for unit in ['B', 'KB', 'MB', 'GB']:
+        if size_in_bytes < 1024:
+            return f"{size_in_bytes:.1f} {unit}"
+        size_in_bytes /= 1024
+    return f"{size_in_bytes:.1f} TB"
+
+def create_thumbnail(image_path, size=(200, 200)):
+    """
+    Create a thumbnail for an image file.
+    
+    Args:
+        image_path: Path to the original image
+        size: Tuple of (width, height) for thumbnail
+        
+    Returns:
+        str: Path to the thumbnail file
+    """
+    try:
+        thumb_dir = os.path.join(os.path.dirname(image_path), 'thumbnails')
+        os.makedirs(thumb_dir, exist_ok=True)
+        
+        filename = os.path.basename(image_path)
+        thumb_path = os.path.join(thumb_dir, f"thumb_{filename}")
+        
+        with Image.open(image_path) as img:
+            img.thumbnail(size)
+            img.save(thumb_path, optimize=True, quality=85)
+            
+        return thumb_path
+    except Exception as e:
+        current_app.logger.error(f"Error creating thumbnail: {str(e)}")
+        return None
