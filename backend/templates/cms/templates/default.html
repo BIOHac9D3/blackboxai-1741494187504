@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block title %}{{ page.title }} - {{ cms_title }}{% endblock %}
+
+{% block meta %}
+{% if page.meta_description %}
+<meta name="description" content="{{ page.meta_description }}">
+{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50">
+    <!-- Header -->
+    <header class="bg-white shadow">
+        <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+            <h1 class="text-3xl font-bold text-gray-900">
+                {{ page.title }}
+            </h1>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main>
+        <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+            <div class="px-4 py-6 sm:px-0">
+                <div class="bg-white overflow-hidden shadow rounded-lg">
+                    {% if page.featured_image %}
+                    <div class="w-full h-64 sm:h-96 bg-gray-200">
+                        <img src="{{ page.featured_image }}" 
+                             alt="{{ page.title }}"
+                             class="w-full h-full object-cover">
+                    </div>
+                    {% endif %}
+                    
+                    <div class="px-4 py-5 sm:p-6 prose max-w-none">
+                        {{ page.content|safe }}
+                    </div>
+                    
+                    <div class="px-4 py-4 sm:px-6 bg-gray-50 text-sm text-gray-500">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                Last updated: {{ page.updated_at|datetime }}
+                            </div>
+                            <div>
+                                Author: {{ page.author }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+{% endblock %}
