@@ -1,0 +1,452 @@
+{% extends "base.html" %}
+
+{% block title %}{{ cms_title }} - Pages{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-100">
+    <!-- CMS Navigation -->
+    <nav class="bg-white shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex">
+                    <div class="flex-shrink-0 flex items-center">
+                        <span class="text-2xl font-bold text-gray-800">{{ cms_title }}</span>
+                    </div>
+                    <div class="hidden sm:ml-6 sm:flex sm:space-x-8">
+                        <a href="{{ url_for('cms.dashboard') }}" 
+                           class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                            Dashboard
+                        </a>
+                        <a href="{{ url_for('cms.pages') }}"
+                           class="border-blue-500 text-gray-900 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                            Pages
+                        </a>
+                        <a href="{{ url_for('cms.media_library') }}"
+                           class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                            Media
+                        </a>
+                        <a href="{{ url_for('cms.settings') }}"
+                           class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                            Settings
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="py-6">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="bg-white shadow rounded-lg">
+                <!-- Header -->
+                <div class="px-4 py-5 border-b border-gray-200 sm:px-6">
+                    <div class="flex items-center justify-between">
+                        <h2 class="text-lg leading-6 font-medium text-gray-900">Pages</h2>
+                        <div class="flex">
+                            <a href="{{ url_for('cms.create_page') }}"
+                               class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                                <i class="fas fa-plus mr-2"></i>
+                                New Page
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Search and Filter -->
+                <div class="px-4 py-4 border-b border-gray-200 sm:px-6 bg-gray-50">
+                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0">
+                        <div class="flex-1 max-w-lg">
+                            <label for="search" class="sr-only">Search pages</label>
+                            <div class="relative rounded-md shadow-sm">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <i class="fas fa-search text-gray-400"></i>
+                                </div>
+                                <input type="text" 
+                                       name="search" 
+                                       id="search"
+                                       class="focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 sm:text-sm border-gray-300 rounded-md" 
+                                       placeholder="Search pages...">
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <select id="status-filter" 
+                                    class="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md">
+                                <option value="">All Status</option>
+                                <option value="published">Published</option>
+                                <option value="draft">Draft</option>
+                                <option value="archived">Archived</option>
+                            </select>
+                            <select id="template-filter" 
+                                    class="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md">
+                                <option value="">All Templates</option>
+                                <option value="default">Default</option>
+                                <option value="full-width">Full Width</option>
+                                <option value="sidebar">With Sidebar</option>
+                                <option value="landing">Landing Page</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pages List -->
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Title
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Status
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Template
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Author
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Last Updated
+                                </th>
+                                <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Actions
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            {% for page in pages %}
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="flex items-center">
+                                        {% if page.featured_image %}
+                                        <div class="flex-shrink-0 h-10 w-10">
+                                            <img class="h-10 w-10 rounded object-cover" 
+                                                 src="{{ page.featured_image }}" 
+                                                 alt="{{ page.title }}">
+                                        </div>
+                                        {% endif %}
+                                        <div class="ml-4">
+                                            <div class="text-sm font-medium text-gray-900">
+                                                {{ page.title }}
+                                            </div>
+                                            <div class="text-sm text-gray-500">
+                                                /{{ page.slug }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                                        {% if page.status == 'published' %}
+                                        bg-green-100 text-green-800
+                                        {% elif page.status == 'draft' %}
+                                        bg-yellow-100 text-yellow-800
+                                        {% else %}
+                                        bg-gray-100 text-gray-800
+                                        {% endif %}">
+                                        {{ page.status|title }}
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    {{ page.template|replace('-', ' ')|title }}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm text-gray-900">{{ page.author }}</div>
+                                    <div class="text-sm text-gray-500">Created {{ page.created_at|datetime('%Y-%m-%d') }}</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    {{ page.updated_at|datetime('%Y-%m-%d %H:%M') }}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                    <div class="flex justify-end space-x-2">
+                                        <a href="{{ url_for('cms.preview_page', page_id=page.id) }}" 
+                                           class="text-gray-600 hover:text-gray-900"
+                                           title="Preview"
+                                           target="_blank">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <a href="{{ url_for('cms.edit_page', page_id=page.id) }}" 
+                                           class="text-blue-600 hover:text-blue-900"
+                                           title="Edit">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        {% if page.status != 'published' %}
+                                        <button onclick="publishPage('{{ page.id }}')"
+                                                class="text-green-600 hover:text-green-900"
+                                                title="Publish">
+                                            <i class="fas fa-check-circle"></i>
+                                        </button>
+                                        {% else %}
+                                        <button onclick="unpublishPage('{{ page.id }}')"
+                                                class="text-yellow-600 hover:text-yellow-900"
+                                                title="Unpublish">
+                                            <i class="fas fa-pause-circle"></i>
+                                        </button>
+                                        {% endif %}
+                                        <button onclick="deletePage('{{ page.id }}')"
+                                                class="text-red-600 hover:text-red-900"
+                                                title="Delete">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination -->
+                {% if pages.pages > 1 %}
+                <div class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
+                    <div class="flex-1 flex justify-between sm:hidden">
+                        {% if pages.has_prev %}
+                        <a href="{{ url_for('cms.pages', page=pages.prev_num) }}" 
+                           class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                            Previous
+                        </a>
+                        {% endif %}
+                        {% if pages.has_next %}
+                        <a href="{{ url_for('cms.pages', page=pages.next_num) }}" 
+                           class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                            Next
+                        </a>
+                        {% endif %}
+                    </div>
+                    <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                        <div>
+                            <p class="text-sm text-gray-700">
+                                Showing
+                                <span class="font-medium">{{ (pages.page - 1) * pages.per_page + 1 }}</span>
+                                to
+                                <span class="font-medium">{{ min(pages.page * pages.per_page, pages.total) }}</span>
+                                of
+                                <span class="font-medium">{{ pages.total }}</span>
+                                results
+                            </p>
+                        </div>
+                        <div>
+                            <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+                                {% if pages.has_prev %}
+                                <a href="{{ url_for('cms.pages', page=pages.prev_num) }}" 
+                                   class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                    <span class="sr-only">Previous</span>
+                                    <i class="fas fa-chevron-left"></i>
+                                </a>
+                                {% endif %}
+                                
+                                {% for page_num in pages.iter_pages() %}
+                                    {% if page_num %}
+                                        {% if page_num == pages.page %}
+                                        <span class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-blue-50 text-sm font-medium text-blue-600">
+                                            {{ page_num }}
+                                        </span>
+                                        {% else %}
+                                        <a href="{{ url_for('cms.pages', page=page_num) }}" 
+                                           class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
+                                            {{ page_num }}
+                                        </a>
+                                        {% endif %}
+                                    {% else %}
+                                        <span class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700">
+                                            ...
+                                        </span>
+                                    {% endif %}
+                                {% endfor %}
+
+                                {% if pages.has_next %}
+                                <a href="{{ url_for('cms.pages', page=pages.next_num) }}" 
+                                   class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                    <span class="sr-only">Next</span>
+                                    <i class="fas fa-chevron-right"></i>
+                                </a>
+                                {% endif %}
+                            </nav>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div id="delete-modal" 
+     class="fixed z-10 inset-0 overflow-y-auto hidden"
+     aria-labelledby="modal-title" 
+     role="dialog" 
+     aria-modal="true">
+    <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" 
+             aria-hidden="true"></div>
+        <span class="hidden sm:inline-block sm:align-middle sm:h-screen" 
+              aria-hidden="true">&#8203;</span>
+        <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+            <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                <div class="sm:flex sm:items-start">
+                    <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-red-100 sm:mx-0 sm:h-10 sm:w-10">
+                        <i class="fas fa-exclamation-triangle text-red-600"></i>
+                    </div>
+                    <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
+                        <h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title">
+                            Delete Page
+                        </h3>
+                        <div class="mt-2">
+                            <p class="text-sm text-gray-500">
+                                Are you sure you want to delete this page? This action cannot be undone.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                <button type="button" 
+                        id="confirm-delete"
+                        class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:ml-3 sm:w-auto sm:text-sm">
+                    Delete
+                </button>
+                <button type="button" 
+                        onclick="closeDeleteModal()"
+                        class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
+                    Cancel
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Toast Notification -->
+<div id="toast" 
+     class="fixed bottom-4 right-4 px-4 py-2 bg-gray-900 text-white rounded-lg shadow-lg transform transition-transform duration-300 translate-y-full">
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('search');
+    const statusFilter = document.getElementById('status-filter');
+    const templateFilter = document.getElementById('template-filter');
+    
+    // Handle search and filters
+    function updateList() {
+        const searchTerm = searchInput.value;
+        const status = statusFilter.value;
+        const template = templateFilter.value;
+        
+        window.location.href = `{{ url_for('cms.pages') }}?search=${searchTerm}&status=${status}&template=${template}`;
+    }
+    
+    // Debounce search input
+    let timeout = null;
+    searchInput.addEventListener('input', () => {
+        clearTimeout(timeout);
+        timeout = setTimeout(updateList, 500);
+    });
+    
+    // Update on filter change
+    statusFilter.addEventListener('change', updateList);
+    templateFilter.addEventListener('change', updateList);
+});
+
+// Page actions
+async function publishPage(pageId) {
+    try {
+        const response = await fetch(`{{ url_for('cms.publish_page', page_id='') }}${pageId}`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': "{{ csrf_token() }}"
+            }
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok) {
+            showToast('Page published successfully', 'success');
+            setTimeout(() => location.reload(), 1000);
+        } else {
+            showToast(data.error, 'error');
+        }
+    } catch (error) {
+        showToast('Failed to publish page', 'error');
+    }
+}
+
+async function unpublishPage(pageId) {
+    try {
+        const response = await fetch(`{{ url_for('cms.unpublish_page', page_id='') }}${pageId}`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': "{{ csrf_token() }}"
+            }
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok) {
+            showToast('Page unpublished successfully', 'success');
+            setTimeout(() => location.reload(), 1000);
+        } else {
+            showToast(data.error, 'error');
+        }
+    } catch (error) {
+        showToast('Failed to unpublish page', 'error');
+    }
+}
+
+// Delete modal handling
+const deleteModal = document.getElementById('delete-modal');
+const confirmDeleteBtn = document.getElementById('confirm-delete');
+let pageToDelete = null;
+
+function deletePage(pageId) {
+    pageToDelete = pageId;
+    deleteModal.classList.remove('hidden');
+}
+
+function closeDeleteModal() {
+    deleteModal.classList.add('hidden');
+    pageToDelete = null;
+}
+
+confirmDeleteBtn.addEventListener('click', async () => {
+    if (!pageToDelete) return;
+    
+    try {
+        const response = await fetch(`{{ url_for('cms.delete_page', page_id='') }}${pageToDelete}`, {
+            method: 'DELETE',
+            headers: {
+                'X-CSRFToken': "{{ csrf_token() }}"
+            }
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok) {
+            showToast('Page deleted successfully', 'success');
+            setTimeout(() => location.reload(), 1000);
+        } else {
+            showToast(data.error, 'error');
+        }
+    } catch (error) {
+        showToast('Failed to delete page', 'error');
+    } finally {
+        closeDeleteModal();
+    }
+});
+
+// Show toast notification
+function showToast(message, type = 'success') {
+    const toast = document.getElementById('toast');
+    toast.textContent = message;
+    toast.classList.remove('translate-y-full');
+    toast.classList.add(type === 'success' ? 'bg-green-600' : 'bg-red-600');
+    
+    setTimeout(() => {
+        toast.classList.add('translate-y-full');
+    }, 3000);
+}
+</script>
+{% endblock %}
