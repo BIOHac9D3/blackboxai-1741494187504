@@ -1,11 +1,13 @@
 import os
 from flask import Blueprint, render_template, jsonify, request, current_app, flash, redirect, url_for
+
 from flask_login import login_required, current_user
 from functools import wraps
 from werkzeug.utils import secure_filename
-from models.product import Product, Category
-from models.user import User
-from models.page import Page
+from backend.models.product import Product
+from backend.models.category import Category
+from backend.models.user import User
+from backend.models.page import Page
 from forms.cms import CategoryForm, ProductForm, PageForm
 from app import db, cache
 from sqlalchemy import desc
