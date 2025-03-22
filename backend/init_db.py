@@ -15,20 +15,20 @@ def init_db():
         # Create tables
         db.create_all()
         
-            # Check if admin user exists
-            admin = User.query.filter_by(email='admin@modernstore.com').first()
-            if not admin:
-                # Create admin user
-                admin = User(
-                    username='admin',
-                    email='admin@modernstore.com',
-                    is_administrator=True,
-                    is_active=True
-                )
-                admin.set_password('Admin123!')
-                db.session.add(admin)
-            else:
-                print("Admin user already exists. Skipping user creation.")
+        # Check if admin user exists
+        admin = User.query.filter_by(email='admin@modernstore.com').first()
+        if not admin:
+            # Create admin user
+            admin = User(
+                username='admin',
+                email='admin@modernstore.com',
+                is_administrator=True,
+                is_active=True
+            )
+            admin.set_password('Admin123!')
+            db.session.add(admin)
+        else:
+            print("Admin user already exists. Skipping user creation.")
         
         # Create sample categories if they do not exist
         categories_data = [
