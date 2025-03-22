@@ -1,0 +1,276 @@
+{% extends "base.html" %}
+
+{% block title %}{{ page.title }}{% endblock %}
+
+{% block meta %}
+    {% if page.meta_description %}
+        <meta name="description" content="{{ page.meta_description }}">
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="bg-white">
+    <!-- Page Header -->
+    <div class="relative py-16 bg-gray-900">
+        <div class="absolute inset-0">
+            {% if page.header_image %}
+                <img class="w-full h-full object-cover" src="{{ url_for('static', filename=page.header_image) }}" alt="{{ page.title }}">
+                <div class="absolute inset-0 bg-gray-900 opacity-75"></div>
+            {% endif %}
+        </div>
+        <div class="relative max-w-7xl mx-auto py-24 px-4 sm:py-32 sm:px-6 lg:px-8">
+            <h1 class="text-4xl font-extrabold tracking-tight text-white sm:text-5xl lg:text-6xl">
+                {{ page.title }}
+            </h1>
+            {% if page.subtitle %}
+                <p class="mt-6 text-xl text-gray-300 max-w-3xl">
+                    {{ page.subtitle }}
+                </p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Gallery Filters -->
+    {% if page.filters %}
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div class="flex flex-wrap gap-4 items-center justify-center">
+                <button type="button" 
+                        data-filter="all"
+                        class="px-4 py-2 rounded-md text-sm font-medium bg-blue-600 text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                    All
+                </button>
+                {% for filter in page.filters %}
+                    <button type="button"
+                            data-filter="{{ filter.value }}"
+                            class="px-4 py-2 rounded-md text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">
+                        {{ filter.label }}
+                    </button>
+                {% endfor %}
+            </div>
+        </div>
+    {% endif %}
+
+    <!-- Gallery Grid -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        {% if page.description %}
+            <div class="prose prose-lg max-w-none mb-12">
+                {{ page.description|safe }}
+            </div>
+        {% endif %}
+
+        <div class="grid grid-cols-1 gap-y-10 sm:grid-cols-2 gap-x-6 lg:grid-cols-3 xl:gap-x-8" id="gallery-grid">
+            {% for item in page.gallery_items %}
+                <div class="group relative" data-category="{{ item.category }}">
+                    <div class="w-full aspect-w-4 aspect-h-3 rounded-lg overflow-hidden bg-gray-100">
+                        {% if item.type == 'image' %}
+                            <img src="{{ url_for('static', filename=item.url) }}"
+                                 alt="{{ item.title }}"
+                                 class="w-full h-full object-center object-cover group-hover:opacity-75">
+                            <button type="button" 
+                                    onclick="openLightbox('{{ item.url }}', '{{ item.title }}')"
+                                    class="absolute inset-0 focus:outline-none">
+                                <span class="sr-only">View details for {{ item.title }}</span>
+                            </button>
+                        {% elif item.type == 'video' %}
+                            <div class="relative w-full h-full">
+                                <img src="{{ url_for('static', filename=item.thumbnail) }}"
+                                     alt="{{ item.title }}"
+                                     class="w-full h-full object-center object-cover">
+                                <button type="button"
+                                        onclick="playVideo('{{ item.url }}')"
+                                        class="absolute inset-0 flex items-center justify-center">
+                                    <span class="w-16 h-16 bg-white rounded-full flex items-center justify-center">
+                                        <i class="fas fa-play text-blue-600 text-2xl"></i>
+                                    </span>
+                                </button>
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div class="mt-4 flex items-center justify-between">
+                        <div>
+                            <h3 class="text-sm font-medium text-gray-900">
+                                {{ item.title }}
+                            </h3>
+                            {% if item.caption %}
+                                <p class="mt-1 text-sm text-gray-500">{{ item.caption }}</p>
+                            {% endif %}
+                        </div>
+                        {% if item.download_url %}
+                            <a href="{{ url_for('static', filename=item.download_url) }}"
+                               download
+                               class="text-sm font-medium text-blue-600 hover:text-blue-500">
+                                <i class="fas fa-download"></i>
+                                <span class="sr-only">Download</span>
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+
+        {% if page.show_load_more and page.has_more %}
+            <div class="mt-12 text-center">
+                <button type="button" 
+                        id="load-more"
+                        class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                    Load More
+                </button>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Lightbox Modal -->
+<div id="lightbox" class="fixed inset-0 z-50 hidden">
+    <div class="absolute inset-0 bg-black bg-opacity-75 transition-opacity"></div>
+    <div class="fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div class="relative max-w-7xl mx-auto">
+            <button type="button" 
+                    onclick="closeLightbox()"
+                    class="absolute top-4 right-4 text-white hover:text-gray-300">
+                <i class="fas fa-times text-2xl"></i>
+                <span class="sr-only">Close</span>
+            </button>
+            <img id="lightbox-image" src="" alt="" class="max-h-screen">
+            <p id="lightbox-caption" class="mt-4 text-center text-white"></p>
+        </div>
+    </div>
+</div>
+
+<!-- Video Modal -->
+<div id="video-modal" class="fixed inset-0 z-50 hidden">
+    <div class="absolute inset-0 bg-black bg-opacity-75 transition-opacity"></div>
+    <div class="fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div class="relative max-w-4xl w-full mx-auto">
+            <button type="button" 
+                    onclick="closeVideo()"
+                    class="absolute -top-10 right-0 text-white hover:text-gray-300">
+                <i class="fas fa-times text-2xl"></i>
+                <span class="sr-only">Close</span>
+            </button>
+            <div class="aspect-w-16 aspect-h-9">
+                <iframe id="video-iframe" 
+                        src="" 
+                        frameborder="0" 
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                        allowfullscreen>
+                </iframe>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script>
+    // Filter functionality
+    const filterButtons = document.querySelectorAll('[data-filter]');
+    const galleryItems = document.querySelectorAll('[data-category]');
+
+    filterButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            // Update button styles
+            filterButtons.forEach(btn => {
+                if (btn === button) {
+                    btn.classList.remove('text-gray-700', 'bg-gray-100');
+                    btn.classList.add('bg-blue-600', 'text-white');
+                } else {
+                    btn.classList.remove('bg-blue-600', 'text-white');
+                    btn.classList.add('text-gray-700', 'bg-gray-100');
+                }
+            });
+
+            const filter = button.dataset.filter;
+            
+            galleryItems.forEach(item => {
+                if (filter === 'all' || item.dataset.category === filter) {
+                    item.style.display = '';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        });
+    });
+
+    // Lightbox functionality
+    function openLightbox(url, title) {
+        const lightbox = document.getElementById('lightbox');
+        const image = document.getElementById('lightbox-image');
+        const caption = document.getElementById('lightbox-caption');
+        
+        image.src = url;
+        image.alt = title;
+        caption.textContent = title;
+        lightbox.classList.remove('hidden');
+        
+        // Prevent body scroll
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeLightbox() {
+        const lightbox = document.getElementById('lightbox');
+        lightbox.classList.add('hidden');
+        document.body.style.overflow = '';
+    }
+
+    // Video functionality
+    function playVideo(url) {
+        const modal = document.getElementById('video-modal');
+        const iframe = document.getElementById('video-iframe');
+        
+        iframe.src = url;
+        modal.classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeVideo() {
+        const modal = document.getElementById('video-modal');
+        const iframe = document.getElementById('video-iframe');
+        
+        iframe.src = '';
+        modal.classList.add('hidden');
+        document.body.style.overflow = '';
+    }
+
+    // Close modals on escape key
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            closeLightbox();
+            closeVideo();
+        }
+    });
+
+    // Load more functionality
+    const loadMoreButton = document.getElementById('load-more');
+    if (loadMoreButton) {
+        loadMoreButton.addEventListener('click', async () => {
+            loadMoreButton.disabled = true;
+            loadMoreButton.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Loading...';
+
+            try {
+                const response = await fetch(`${window.location.pathname}?page=${page.current_page + 1}`);
+                const data = await response.json();
+                
+                if (data.items.length > 0) {
+                    const grid = document.getElementById('gallery-grid');
+                    data.items.forEach(item => {
+                        // Create and append new gallery items
+                        const itemElement = createGalleryItem(item);
+                        grid.appendChild(itemElement);
+                    });
+
+                    if (!data.has_more) {
+                        loadMoreButton.style.display = 'none';
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading more items:', error);
+            } finally {
+                loadMoreButton.disabled = false;
+                loadMoreButton.innerHTML = 'Load More';
+            }
+        });
+    }
+</script>
+{% endblock %}
