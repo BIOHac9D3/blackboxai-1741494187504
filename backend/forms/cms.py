@@ -1,10 +1,10 @@
+# CMS Forms
 from flask_wtf import FlaskForm
-from flask_wtf.file import FileField, FileAllowed
-from wtforms import StringField, TextAreaField, SelectField, BooleanField, FloatField, IntegerField
-from wtforms.validators import DataRequired, Length, Optional, URL, NumberRange, ValidationError
+from wtforms import StringField, TextAreaField, SubmitField, FileField
+from wtforms.validators import DataRequired
 
-class CategoryForm(FlaskForm):
-    name = StringField('Name', validators=[DataRequired(), Length(min=2, max=100)])
+class ProductForm(FlaskForm):
+    name = StringField('Product Name', validators=[DataRequired()])
     slug = StringField('Slug', validators=[DataRequired(), Length(min=2, max=100)])
     description = TextAreaField('Description', validators=[Optional(), Length(max=500)])
 
