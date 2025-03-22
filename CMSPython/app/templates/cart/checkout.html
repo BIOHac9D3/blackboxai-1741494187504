@@ -1,0 +1,260 @@
+{% extends "base.html" %}
+
+{% block title %}Checkout{% endblock %}
+
+{% block content %}
+<div class="bg-gray-50">
+    <div class="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+        <h1 class="text-3xl font-extrabold text-gray-900 mb-8">Checkout</h1>
+
+        <div class="lg:grid lg:grid-cols-2 lg:gap-x-12 xl:gap-x-16">
+            <!-- Order Form -->
+            <div>
+                <form method="POST" class="space-y-6" id="checkout-form">
+                    {{ form.csrf_token }}
+                    
+                    <!-- Contact Information -->
+                    <div class="bg-white rounded-lg shadow-sm p-6">
+                        <h2 class="text-lg font-medium text-gray-900 mb-4">Contact Information</h2>
+                        <div class="space-y-4">
+                            <div>
+                                {{ form.email.label(class="block text-sm font-medium text-gray-700") }}
+                                {{ form.email(class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500") }}
+                                {% if form.email.errors %}
+                                    <div class="text-xs text-red-600 mt-1">{{ form.email.errors[0] }}</div>
+                                {% endif %}
+                            </div>
+                            <div>
+                                {{ form.phone.label(class="block text-sm font-medium text-gray-700") }}
+                                {{ form.phone(class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500") }}
+                                {% if form.phone.errors %}
+                                    <div class="text-xs text-red-600 mt-1">{{ form.phone.errors[0] }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Shipping Address -->
+                    <div class="bg-white rounded-lg shadow-sm p-6">
+                        <h2 class="text-lg font-medium text-gray-900 mb-4">Shipping Address</h2>
+                        <div class="space-y-4">
+                            <div class="grid grid-cols-1 gap-y-6 sm:grid-cols-2 sm:gap-x-4">
+                                <div>
+                                    {{ form.first_name.label(class="block text-sm font-medium text-gray-700") }}
+                                    {{ form.first_name(class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500") }}
+                                    {% if form.first_name.errors %}
+                                        <div class="text-xs text-red-600 mt-1">{{ form.first_name.errors[0] }}</div>
+                                    {% endif %}
+                                </div>
+                                <div>
+                                    {{ form.last_name.label(class="block text-sm font-medium text-gray-700") }}
+                                    {{ form.last_name(class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500") }}
+                                    {% if form.last_name.errors %}
+                                        <div class="text-xs text-red-600 mt-1">{{ form.last_name.errors[0] }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div>
+                                {{ form.address.label(class="block text-sm font-medium text-gray-700") }}
+                                {{ form.address(class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500") }}
+                                {% if form.address.errors %}
+                                    <div class="text-xs text-red-600 mt-1">{{ form.address.errors[0] }}</div>
+                                {% endif %}
+                            </div>
+                            <div>
+                                {{ form.address2.label(class="block text-sm font-medium text-gray-700") }}
+                                {{ form.address2(class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500") }}
+                                {% if form.address2.errors %}
+                                    <div class="text-xs text-red-600 mt-1">{{ form.address2.errors[0] }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="grid grid-cols-1 gap-y-6 sm:grid-cols-3 sm:gap-x-4">
+                                <div>
+                                    {{ form.city.label(class="block text-sm font-medium text-gray-700") }}
+                                    {{ form.city(class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500") }}
+                                    {% if form.city.errors %}
+                                        <div class="text-xs text-red-600 mt-1">{{ form.city.errors[0] }}</div>
+                                    {% endif %}
+                                </div>
+                                <div>
+                                    {{ form.state.label(class="block text-sm font-medium text-gray-700") }}
+                                    {{ form.state(class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500") }}
+                                    {% if form.state.errors %}
+                                        <div class="text-xs text-red-600 mt-1">{{ form.state.errors[0] }}</div>
+                                    {% endif %}
+                                </div>
+                                <div>
+                                    {{ form.zip_code.label(class="block text-sm font-medium text-gray-700") }}
+                                    {{ form.zip_code(class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500") }}
+                                    {% if form.zip_code.errors %}
+                                        <div class="text-xs text-red-600 mt-1">{{ form.zip_code.errors[0] }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Payment Information -->
+                    <div class="bg-white rounded-lg shadow-sm p-6">
+                        <h2 class="text-lg font-medium text-gray-900 mb-4">Payment Information</h2>
+                        <div class="space-y-4">
+                            <div>
+                                {{ form.card_number.label(class="block text-sm font-medium text-gray-700") }}
+                                {{ form.card_number(class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500", placeholder="•••• •••• •••• ••••") }}
+                                {% if form.card_number.errors %}
+                                    <div class="text-xs text-red-600 mt-1">{{ form.card_number.errors[0] }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="grid grid-cols-1 gap-y-6 sm:grid-cols-3 sm:gap-x-4">
+                                <div class="col-span-2">
+                                    {{ form.expiry.label(class="block text-sm font-medium text-gray-700") }}
+                                    {{ form.expiry(class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500", placeholder="MM/YY") }}
+                                    {% if form.expiry.errors %}
+                                        <div class="text-xs text-red-600 mt-1">{{ form.expiry.errors[0] }}</div>
+                                    {% endif %}
+                                </div>
+                                <div>
+                                    {{ form.cvv.label(class="block text-sm font-medium text-gray-700") }}
+                                    {{ form.cvv(class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500", placeholder="•••") }}
+                                    {% if form.cvv.errors %}
+                                        <div class="text-xs text-red-600 mt-1">{{ form.cvv.errors[0] }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Order Notes -->
+                    <div class="bg-white rounded-lg shadow-sm p-6">
+                        <h2 class="text-lg font-medium text-gray-900 mb-4">Order Notes</h2>
+                        <div>
+                            {{ form.notes.label(class="block text-sm font-medium text-gray-700") }}
+                            {{ form.notes(class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500", rows=3) }}
+                            {% if form.notes.errors %}
+                                <div class="text-xs text-red-600 mt-1">{{ form.notes.errors[0] }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Order Summary -->
+            <div class="mt-10 lg:mt-0">
+                <div class="bg-white rounded-lg shadow-sm p-6 sticky top-6">
+                    <h2 class="text-lg font-medium text-gray-900 mb-4">Order Summary</h2>
+                    
+                    <!-- Items -->
+                    <div class="flow-root">
+                        <ul class="-my-4 divide-y divide-gray-200">
+                            {% for item in cart.items %}
+                            <li class="flex items-center py-4">
+                                <div class="flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden">
+                                    {% if item.product.image %}
+                                        <img src="{{ url_for('static', filename=item.product.image) }}"
+                                             alt="{{ item.product.name }}"
+                                             class="w-full h-full object-center object-cover">
+                                    {% else %}
+                                        <div class="w-full h-full bg-gray-200 flex items-center justify-center">
+                                            <i class="fas fa-box text-gray-400 text-xl"></i>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                <div class="ml-4 flex-1">
+                                    <h3 class="text-sm font-medium text-gray-900">{{ item.product.name }}</h3>
+                                    <p class="mt-1 text-sm text-gray-500">Qty: {{ item.quantity }}</p>
+                                </div>
+                                <p class="ml-4 text-sm font-medium text-gray-900">${{ "%.2f"|format(item.total) }}</p>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+
+                    <!-- Totals -->
+                    <dl class="mt-6 space-y-4">
+                        <div class="flex items-center justify-between">
+                            <dt class="text-sm text-gray-600">Subtotal</dt>
+                            <dd class="text-sm font-medium text-gray-900">${{ "%.2f"|format(cart.subtotal) }}</dd>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <dt class="text-sm text-gray-600">Shipping</dt>
+                            <dd class="text-sm font-medium text-gray-900">${{ "%.2f"|format(cart.shipping) }}</dd>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <dt class="text-sm text-gray-600">Tax</dt>
+                            <dd class="text-sm font-medium text-gray-900">${{ "%.2f"|format(cart.tax) }}</dd>
+                        </div>
+                        <div class="flex items-center justify-between border-t border-gray-200 pt-4">
+                            <dt class="text-base font-medium text-gray-900">Total</dt>
+                            <dd class="text-base font-medium text-gray-900">${{ "%.2f"|format(cart.total) }}</dd>
+                        </div>
+                    </dl>
+
+                    <!-- Place Order Button -->
+                    <div class="mt-6">
+                        <button type="submit" 
+                                form="checkout-form"
+                                class="w-full flex justify-center items-center px-6 py-3 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                            Place Order
+                        </button>
+                    </div>
+
+                    <!-- Back to Cart -->
+                    <div class="mt-4 text-center">
+                        <a href="{{ url_for('cart.index') }}" class="text-sm text-blue-600 hover:text-blue-500">
+                            Back to Cart
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script>
+    // Format card number input
+    const cardInput = document.getElementById('card_number');
+    if (cardInput) {
+        cardInput.addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            if (value.length > 16) value = value.slice(0, 16);
+            const parts = value.match(/[\s\S]{1,4}/g) || [];
+            e.target.value = parts.join(' ');
+        });
+    }
+
+    // Format expiry date input
+    const expiryInput = document.getElementById('expiry');
+    if (expiryInput) {
+        expiryInput.addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            if (value.length > 4) value = value.slice(0, 4);
+            if (value.length > 2) {
+                value = value.slice(0, 2) + '/' + value.slice(2);
+            }
+            e.target.value = value;
+        });
+    }
+
+    // Format CVV input
+    const cvvInput = document.getElementById('cvv');
+    if (cvvInput) {
+        cvvInput.addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            if (value.length > 4) value = value.slice(0, 4);
+            e.target.value = value;
+        });
+    }
+
+    // Handle form submission
+    const form = document.getElementById('checkout-form');
+    const submitButton = form.querySelector('button[type="submit"]');
+
+    form.addEventListener('submit', function() {
+        submitButton.disabled = true;
+        submitButton.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Processing...';
+    });
+</script>
+{% endblock %}
