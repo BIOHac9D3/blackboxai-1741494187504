@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Cancellation Confirmation</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            background: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .header {
+            text-align: center;
+            padding: 20px 0;
+            border-bottom: 1px solid #eee;
+        }
+        .logo {
+            max-width: 200px;
+            height: auto;
+        }
+        .content {
+            padding: 20px 0;
+        }
+        .cancellation-info {
+            background: #fef2f2;
+            padding: 20px;
+            border-radius: 6px;
+            margin: 20px 0;
+            text-align: center;
+            border: 1px solid #fecaca;
+        }
+        .cancellation-icon {
+            font-size: 48px;
+            color: #dc2626;
+            margin-bottom: 10px;
+        }
+        .order-details {
+            background: #f9fafb;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 20px 0;
+        }
+        .order-items {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        .order-items th,
+        .order-items td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+        .order-items th {
+            background: #f9fafb;
+        }
+        .button {
+            display: inline-block;
+            padding: 12px 24px;
+            background-color: #3b82f6;
+            color: #ffffff;
+            text-decoration: none;
+            border-radius: 6px;
+            margin: 20px 0;
+        }
+        .refund-info {
+            background: #f0fdf4;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 20px 0;
+            border: 1px solid #86efac;
+        }
+        .footer {
+            text-align: center;
+            padding: 20px 0;
+            color: #6b7280;
+            font-size: 14px;
+            border-top: 1px solid #eee;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <img src="{{ url_for('static', filename='images/logo.png', _external=True) }}" alt="Logo" class="logo">
+            <h1>Order Cancellation Confirmation</h1>
+        </div>
+
+        <div class="content">
+            <p>Dear {{ order.first_name }},</p>
+            
+            <div class="cancellation-info">
+                <div class="cancellation-icon">×</div>
+                <h2>Order Cancelled</h2>
+                <p>Your order has been successfully cancelled as requested.</p>
+            </div>
+
+            <div class="order-details">
+                <h2>Cancelled Order Details</h2>
+                <p><strong>Order Number:</strong> #{{ order.id }}</p>
+                <p><strong>Order Date:</strong> {{ order.created_at|datetime }}</p>
+                <p><strong>Cancellation Date:</strong> {{ order.cancelled_at|datetime }}</p>
+            </div>
+
+            <h2>Cancelled Items</h2>
+            <table class="order-items">
+                <thead>
+                    <tr>
+                        <th>Item</th>
+                        <th>Quantity</th>
+                        <th>Price</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in order.items %}
+                    <tr>
+                        <td>{{ item.product.name }}</td>
+                        <td>{{ item.quantity }}</td>
+                        <td>${{ "%.2f"|format(item.price) }}</td>
+                    </tr>
+                    {% endfor %}
+                    <tr>
+                        <td colspan="2">Subtotal</td>
+                        <td>${{ "%.2f"|format(order.subtotal) }}</td>
+                    </tr>
+                    <tr>
+                        <td colspan="2">Shipping</td>
+                        <td>${{ "%.2f"|format(order.shipping) }}</td>
+                    </tr>
+                    <tr>
+                        <td colspan="2">Tax</td>
+                        <td>${{ "%.2f"|format(order.tax) }}</td>
+                    </tr>
+                    <tr>
+                        <td colspan="2"><strong>Total Refund</strong></td>
+                        <td><strong>${{ "%.2f"|format(order.total) }}</strong></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            {% if order.payment_processed %}
+            <div class="refund-info">
+                <h3>Refund Information</h3>
+                <p>A refund of ${{ "%.2f"|format(order.total) }} will be processed to your original payment method.</p>
+                <p>Please allow 5-10 business days for the refund to appear in your account.</p>
+            </div>
+            {% endif %}
+
+            <p>We're sorry that you had to cancel your order. We hope to serve you again in the future!</p>
+
+            <div style="text-align: center;">
+                <p>Ready to browse more products?</p>
+                <a href="{{ url_for('product.index', _external=True) }}" class="button">
+                    Continue Shopping
+                </a>
+            </div>
+
+            <p>If you have any questions about your cancellation or refund, please don't hesitate to contact our customer service team.</p>
+
+            <p>Best regards,<br>Your Store Team</p>
+        </div>
+
+        <div class="footer">
+            <p>This email was sent to {{ order.email }}</p>
+            <p>© {{ now.year }} Your Store. All rights reserved.</p>
+            <p>
+                <small>
+                    If you did not request this cancellation, please contact our support team immediately.
+                </small>
+            </p>
+        </div>
+    </div>
+</body>
+</html>
