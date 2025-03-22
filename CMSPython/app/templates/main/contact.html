@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+
+{% block title %}Contact Us{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div class="max-w-3xl mx-auto">
+        <div class="text-center mb-12">
+            <h1 class="text-3xl font-bold text-gray-900 sm:text-4xl">Contact Us</h1>
+            <p class="mt-4 text-lg text-gray-500">Have a question or feedback? We'd love to hear from you.</p>
+        </div>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="mb-8 rounded-md p-4 {% if category == 'error' %}bg-red-50 text-red-700{% else %}bg-green-50 text-green-700{% endif %}">
+                        <div class="flex">
+                            <div class="flex-shrink-0">
+                                {% if category == 'error' %}
+                                    <i class="fas fa-exclamation-circle"></i>
+                                {% else %}
+                                    <i class="fas fa-check-circle"></i>
+                                {% endif %}
+                            </div>
+                            <div class="ml-3">
+                                <p class="text-sm font-medium">{{ message }}</p>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <form action="{{ url_for('main.contact_submit') }}" method="POST" class="space-y-6">
+            <div>
+                <label for="name" class="block text-sm font-medium text-gray-700">Name</label>
+                <div class="mt-1">
+                    <input type="text" 
+                           name="name" 
+                           id="name" 
+                           required 
+                           class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md">
+                </div>
+            </div>
+
+            <div>
+                <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
+                <div class="mt-1">
+                    <input type="email" 
+                           name="email" 
+                           id="email" 
+                           required 
+                           class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md">
+                </div>
+            </div>
+
+            <div>
+                <label for="message" class="block text-sm font-medium text-gray-700">Message</label>
+                <div class="mt-1">
+                    <textarea name="message" 
+                              id="message" 
+                              rows="4" 
+                              required 
+                              class="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md"></textarea>
+                </div>
+            </div>
+
+            <div class="flex justify-end">
+                <button type="submit" 
+                        class="inline-flex items-center px-4 py-2 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                    Send Message
+                    <i class="fas fa-paper-plane ml-2"></i>
+                </button>
+            </div>
+        </form>
+
+        <div class="mt-12 grid grid-cols-1 gap-8 sm:grid-cols-2">
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <i class="fas fa-envelope text-2xl text-blue-600"></i>
+                </div>
+                <div class="ml-4">
+                    <h3 class="text-lg font-medium text-gray-900">Email</h3>
+                    <p class="mt-1 text-gray-500">support@example.com</p>
+                </div>
+            </div>
+
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <i class="fas fa-phone text-2xl text-blue-600"></i>
+                </div>
+                <div class="ml-4">
+                    <h3 class="text-lg font-medium text-gray-900">Phone</h3>
+                    <p class="mt-1 text-gray-500">+1 (555) 123-4567</p>
+                </div>
+            </div>
+
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <i class="fas fa-map-marker-alt text-2xl text-blue-600"></i>
+                </div>
+                <div class="ml-4">
+                    <h3 class="text-lg font-medium text-gray-900">Address</h3>
+                    <p class="mt-1 text-gray-500">123 Main Street<br>New York, NY 10001</p>
+                </div>
+            </div>
+
+            <div class="flex items-center">
+                <div class="flex-shrink-0">
+                    <i class="fas fa-clock text-2xl text-blue-600"></i>
+                </div>
+                <div class="ml-4">
+                    <h3 class="text-lg font-medium text-gray-900">Business Hours</h3>
+                    <p class="mt-1 text-gray-500">Mon-Fri: 9:00 AM - 5:00 PM<br>Sat-Sun: Closed</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
