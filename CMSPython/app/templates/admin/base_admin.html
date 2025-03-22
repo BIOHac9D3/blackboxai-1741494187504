@@ -1,0 +1,228 @@
+{% extends "base.html" %}
+
+{% block styles %}
+<style>
+    /* Admin-specific styles */
+    .sidebar-link {
+        @apply flex items-center px-4 py-2 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-100;
+    }
+    
+    .sidebar-link.active {
+        @apply bg-blue-50 text-blue-700;
+    }
+    
+    .sidebar-link i {
+        @apply mr-3 text-lg;
+    }
+    
+    .stats-card {
+        @apply bg-white rounded-lg shadow p-6;
+    }
+    
+    .stats-card-title {
+        @apply text-sm font-medium text-gray-500;
+    }
+    
+    .stats-card-value {
+        @apply mt-2 text-3xl font-semibold text-gray-900;
+    }
+    
+    .stats-card-change {
+        @apply mt-2 flex items-center text-sm font-medium;
+    }
+    
+    .stats-card-change.positive {
+        @apply text-green-600;
+    }
+    
+    .stats-card-change.negative {
+        @apply text-red-600;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="flex h-screen bg-gray-50">
+    <!-- Sidebar -->
+    <div class="hidden md:flex md:flex-shrink-0">
+        <div class="flex flex-col w-64">
+            <div class="flex flex-col flex-grow pt-5 pb-4 overflow-y-auto bg-white border-r">
+                <div class="flex items-center flex-shrink-0 px-4">
+                    <span class="text-xl font-semibold text-gray-800">Admin Panel</span>
+                </div>
+                <div class="mt-5 flex-grow flex flex-col">
+                    <nav class="flex-1 px-2 space-y-1">
+                        <a href="{{ url_for('admin.dashboard') }}" 
+                           class="sidebar-link {{ 'active' if request.endpoint == 'admin.dashboard' }}">
+                            <i class="fas fa-tachometer-alt"></i>
+                            Dashboard
+                        </a>
+                        <a href="{{ url_for('admin.manage_products') }}" 
+                           class="sidebar-link {{ 'active' if request.endpoint == 'admin.manage_products' }}">
+                            <i class="fas fa-box"></i>
+                            Products
+                        </a>
+                        <a href="{{ url_for('admin.manage_categories') }}" 
+                           class="sidebar-link {{ 'active' if request.endpoint == 'admin.manage_categories' }}">
+                            <i class="fas fa-tags"></i>
+                            Categories
+                        </a>
+                        <a href="{{ url_for('order.index') }}" 
+                           class="sidebar-link {{ 'active' if request.endpoint == 'order.index' }}">
+                            <i class="fas fa-shopping-cart"></i>
+                            Orders
+                        </a>
+                        <a href="{{ url_for('cms.pages') }}" 
+                           class="sidebar-link {{ 'active' if request.endpoint == 'cms.pages' }}">
+                            <i class="fas fa-file-alt"></i>
+                            Pages
+                        </a>
+                        <a href="{{ url_for('cms.media') }}" 
+                           class="sidebar-link {{ 'active' if request.endpoint == 'cms.media' }}">
+                            <i class="fas fa-images"></i>
+                            Media
+                        </a>
+                        <a href="{{ url_for('cms.settings') }}" 
+                           class="sidebar-link {{ 'active' if request.endpoint == 'cms.settings' }}">
+                            <i class="fas fa-cog"></i>
+                            Settings
+                        </a>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main content -->
+    <div class="flex flex-col flex-1 overflow-hidden">
+        <!-- Top bar -->
+        <div class="sticky top-0 z-10 flex-shrink-0 flex h-16 bg-white shadow">
+            <button type="button" 
+                    class="md:hidden px-4 border-r border-gray-200 text-gray-500 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500"
+                    id="sidebar-toggle">
+                <span class="sr-only">Open sidebar</span>
+                <i class="fas fa-bars"></i>
+            </button>
+            
+            <div class="flex-1 px-4 flex justify-between">
+                <div class="flex-1 flex">
+                    <!-- Search bar -->
+                    <form class="w-full flex md:ml-0" action="#" method="GET">
+                        <label for="search-field" class="sr-only">Search</label>
+                        <div class="relative w-full text-gray-400 focus-within:text-gray-600">
+                            <div class="absolute inset-y-0 left-0 flex items-center pointer-events-none">
+                                <i class="fas fa-search h-5 w-5"></i>
+                            </div>
+                            <input id="search-field" 
+                                   class="block w-full h-full pl-8 pr-3 py-2 border-transparent text-gray-900 placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-0 focus:border-transparent sm:text-sm"
+                                   placeholder="Search"
+                                   type="search"
+                                   name="search">
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main content area -->
+        <main class="flex-1 relative overflow-y-auto focus:outline-none">
+            <div class="py-6">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
+                    {% block admin_content %}{% endblock %}
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<!-- Mobile sidebar -->
+<div class="fixed inset-0 flex z-40 md:hidden hidden" id="mobile-sidebar">
+    <div class="fixed inset-0 bg-gray-600 bg-opacity-75"></div>
+    
+    <div class="relative flex-1 flex flex-col max-w-xs w-full bg-white">
+        <div class="absolute top-0 right-0 -mr-12 pt-2">
+            <button type="button" 
+                    class="ml-1 flex items-center justify-center h-10 w-10 rounded-full focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white"
+                    id="close-sidebar">
+                <span class="sr-only">Close sidebar</span>
+                <i class="fas fa-times text-white"></i>
+            </button>
+        </div>
+        
+        <div class="flex-1 h-0 pt-5 pb-4 overflow-y-auto">
+            <div class="flex-shrink-0 flex items-center px-4">
+                <span class="text-xl font-semibold text-gray-800">Admin Panel</span>
+            </div>
+            <nav class="mt-5 px-2 space-y-1">
+                <!-- Mobile navigation links (same as desktop) -->
+                <a href="{{ url_for('admin.dashboard') }}" 
+                   class="sidebar-link {{ 'active' if request.endpoint == 'admin.dashboard' }}">
+                    <i class="fas fa-tachometer-alt"></i>
+                    Dashboard
+                </a>
+                <a href="{{ url_for('admin.manage_products') }}" 
+                   class="sidebar-link {{ 'active' if request.endpoint == 'admin.manage_products' }}">
+                    <i class="fas fa-box"></i>
+                    Products
+                </a>
+                <a href="{{ url_for('admin.manage_categories') }}" 
+                   class="sidebar-link {{ 'active' if request.endpoint == 'admin.manage_categories' }}">
+                    <i class="fas fa-tags"></i>
+                    Categories
+                </a>
+                <a href="{{ url_for('order.index') }}" 
+                   class="sidebar-link {{ 'active' if request.endpoint == 'order.index' }}">
+                    <i class="fas fa-shopping-cart"></i>
+                    Orders
+                </a>
+                <a href="{{ url_for('cms.pages') }}" 
+                   class="sidebar-link {{ 'active' if request.endpoint == 'cms.pages' }}">
+                    <i class="fas fa-file-alt"></i>
+                    Pages
+                </a>
+                <a href="{{ url_for('cms.media') }}" 
+                   class="sidebar-link {{ 'active' if request.endpoint == 'cms.media' }}">
+                    <i class="fas fa-images"></i>
+                    Media
+                </a>
+                <a href="{{ url_for('cms.settings') }}" 
+                   class="sidebar-link {{ 'active' if request.endpoint == 'cms.settings' }}">
+                    <i class="fas fa-cog"></i>
+                    Settings
+                </a>
+            </nav>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Mobile sidebar toggle
+    const mobileSidebar = document.getElementById('mobile-sidebar');
+    const sidebarToggle = document.getElementById('sidebar-toggle');
+    const closeSidebar = document.getElementById('close-sidebar');
+    
+    if (sidebarToggle && mobileSidebar && closeSidebar) {
+        sidebarToggle.addEventListener('click', () => {
+            mobileSidebar.classList.remove('hidden');
+        });
+        
+        closeSidebar.addEventListener('click', () => {
+            mobileSidebar.classList.add('hidden');
+        });
+        
+        // Close sidebar when clicking outside
+        mobileSidebar.addEventListener('click', (event) => {
+            if (event.target === mobileSidebar) {
+                mobileSidebar.classList.add('hidden');
+            }
+        });
+    }
+    
+    // Initialize any admin-specific JavaScript
+    document.addEventListener('DOMContentLoaded', () => {
+        // Add any initialization code here
+    });
+</script>
+{% endblock %}
