@@ -1,0 +1,204 @@
+{% extends "base.html" %}
+
+{% block title %}Order #{{ order.id }}{% endblock %}
+
+{% block content %}
+<div class="bg-gray-50">
+    <div class="max-w-3xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+        <!-- Order Header -->
+        <div class="flex items-center justify-between">
+            <div>
+                <h1 class="text-3xl font-extrabold text-gray-900">Order #{{ order.id }}</h1>
+                <p class="mt-1 text-sm text-gray-500">
+                    Placed on {{ order.created_at|datetime }}
+                </p>
+            </div>
+            <span class="px-3 py-1 rounded-full text-sm font-medium
+                       {% if order.status == 'pending' %}bg-yellow-100 text-yellow-800
+                       {% elif order.status == 'processing' %}bg-blue-100 text-blue-800
+                       {% elif order.status == 'shipped' %}bg-indigo-100 text-indigo-800
+                       {% elif order.status == 'delivered' %}bg-green-100 text-green-800
+                       {% elif order.status == 'cancelled' %}bg-red-100 text-red-800
+                       {% else %}bg-gray-100 text-gray-800{% endif %}">
+                {{ order.status|title }}
+            </span>
+        </div>
+
+        <!-- Order Progress -->
+        {% if order.status not in ['cancelled', 'refunded'] %}
+        <div class="mt-8">
+            <div class="relative">
+                {% set status_order = ['pending', 'processing', 'shipped', 'delivered'] %}
+                {% set current_index = status_order.index(order.status) %}
+                
+                <div class="overflow-hidden h-2 mb-4 text-xs flex rounded bg-gray-200">
+                    <div class="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-blue-500"
+                         style="width: {{ ((current_index + 1) / status_order|length * 100)|round }}%"></div>
+                </div>
+                
+                <div class="flex justify-between">
+                    {% for status in status_order %}
+                        <div class="text-center">
+                            <div class="w-8 h-8 mx-auto rounded-full flex items-center justify-center
+                                        {% if status_order.index(status) <= current_index %}
+                                            bg-blue-500 text-white
+                                        {% else %}
+                                            bg-gray-200 text-gray-400
+                                        {% endif %}">
+                                {% if status == 'pending' %}
+                                    <i class="fas fa-clock"></i>
+                                {% elif status == 'processing' %}
+                                    <i class="fas fa-cog"></i>
+                                {% elif status == 'shipped' %}
+                                    <i class="fas fa-truck"></i>
+                                {% elif status == 'delivered' %}
+                                    <i class="fas fa-check"></i>
+                                {% endif %}
+                            </div>
+                            <div class="mt-2 text-xs font-medium
+                                        {% if status_order.index(status) <= current_index %}
+                                            text-blue-600
+                                        {% else %}
+                                            text-gray-400
+                                        {% endif %}">
+                                {{ status|title }}
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="mt-8 space-y-8">
+            <!-- Order Items -->
+            <div class="bg-white shadow rounded-lg overflow-hidden">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h2 class="text-lg font-medium text-gray-900">Order Items</h2>
+                </div>
+                <ul class="divide-y divide-gray-200">
+                    {% for item in order.items %}
+                    <li class="px-6 py-4 flex items-center">
+                        <div class="flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden">
+                            {% if item.product.image %}
+                                <img src="{{ url_for('static', filename=item.product.image) }}"
+                                     alt="{{ item.product.name }}"
+                                     class="w-full h-full object-center object-cover">
+                            {% else %}
+                                <div class="w-full h-full bg-gray-200 flex items-center justify-center">
+                                    <i class="fas fa-box text-gray-400 text-xl"></i>
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="ml-4 flex-1">
+                            <div class="flex justify-between">
+                                <div>
+                                    <h3 class="text-sm font-medium text-gray-900">
+                                        {% if item.product %}
+                                            <a href="{{ url_for('product.detail', slug=item.product.slug) }}" 
+                                               class="hover:text-blue-600">
+                                                {{ item.product.name }}
+                                            </a>
+                                        {% else %}
+                                            Product no longer available
+                                        {% endif %}
+                                    </h3>
+                                    <p class="mt-1 text-sm text-gray-500">Quantity: {{ item.quantity }}</p>
+                                </div>
+                                <p class="text-sm font-medium text-gray-900">${{ "%.2f"|format(item.price) }}</p>
+                            </div>
+                        </div>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+
+            <!-- Order Summary -->
+            <div class="bg-white shadow rounded-lg overflow-hidden">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h2 class="text-lg font-medium text-gray-900">Order Summary</h2>
+                </div>
+                <div class="px-6 py-4">
+                    <dl class="space-y-4">
+                        <div class="flex justify-between">
+                            <dt class="text-sm text-gray-600">Subtotal</dt>
+                            <dd class="text-sm font-medium text-gray-900">${{ "%.2f"|format(order.subtotal) }}</dd>
+                        </div>
+                        <div class="flex justify-between">
+                            <dt class="text-sm text-gray-600">Shipping</dt>
+                            <dd class="text-sm font-medium text-gray-900">${{ "%.2f"|format(order.shipping) }}</dd>
+                        </div>
+                        <div class="flex justify-between">
+                            <dt class="text-sm text-gray-600">Tax</dt>
+                            <dd class="text-sm font-medium text-gray-900">${{ "%.2f"|format(order.tax) }}</dd>
+                        </div>
+                        <div class="flex justify-between border-t border-gray-200 pt-4">
+                            <dt class="text-base font-medium text-gray-900">Total</dt>
+                            <dd class="text-base font-medium text-gray-900">${{ "%.2f"|format(order.total) }}</dd>
+                        </div>
+                    </dl>
+                </div>
+            </div>
+
+            <!-- Shipping Information -->
+            <div class="bg-white shadow rounded-lg overflow-hidden">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h2 class="text-lg font-medium text-gray-900">Shipping Information</h2>
+                </div>
+                <div class="px-6 py-4">
+                    <p class="font-medium text-gray-900">{{ order.first_name }} {{ order.last_name }}</p>
+                    <div class="mt-2 text-sm text-gray-500">
+                        <p>{{ order.address }}</p>
+                        {% if order.address2 %}
+                            <p>{{ order.address2 }}</p>
+                        {% endif %}
+                        <p>{{ order.city }}, {{ order.state }} {{ order.zip_code }}</p>
+                        <p class="mt-2">Email: {{ order.email }}</p>
+                        {% if order.phone %}
+                            <p>Phone: {{ order.phone }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            {% if order.tracking_number %}
+            <!-- Tracking Information -->
+            <div class="bg-white shadow rounded-lg overflow-hidden">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h2 class="text-lg font-medium text-gray-900">Tracking Information</h2>
+                </div>
+                <div class="px-6 py-4">
+                    <p class="text-sm text-gray-500">
+                        Tracking Number: <span class="font-medium text-gray-900">{{ order.tracking_number }}</span>
+                    </p>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Order Actions -->
+            <div class="flex justify-end space-x-4">
+                {% if order.status == 'pending' %}
+                    <form method="POST" action="{{ url_for('order.cancel', id=order.id) }}"
+                          onsubmit="return confirm('Are you sure you want to cancel this order?')">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button type="submit" 
+                                class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700">
+                            Cancel Order
+                        </button>
+                    </form>
+                {% endif %}
+                {% if order.status == 'delivered' and not order.reviewed %}
+                    <a href="{{ url_for('order.review', id=order.id) }}" 
+                       class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700">
+                        Write Review
+                    </a>
+                {% endif %}
+                <a href="{{ url_for('order.history') }}" 
+                   class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                    Back to Orders
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
