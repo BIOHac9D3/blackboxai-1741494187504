@@ -1,0 +1,197 @@
+{% extends "admin/base_admin.html" %}
+
+{% block title %}{% if page %}Edit Page{% else %}New Page{% endif %} - Admin{% endblock %}
+
+{% block styles %}
+{{ super() }}
+<!-- CKEditor styles -->
+{{ ckeditor.load() }}
+{{ ckeditor.config(name='content') }}
+{% endblock %}
+
+{% block admin_content %}
+<div class="space-y-6">
+    <!-- Page Header -->
+    <div class="flex items-center justify-between">
+        <h1 class="text-2xl font-semibold text-gray-900">
+            {% if page %}Edit Page{% else %}New Page{% endif %}
+        </h1>
+        {% if page %}
+            <div class="flex space-x-3">
+                {% if page.is_published %}
+                    <a href="{{ url_for('main.page', slug=page.slug) }}" 
+                       target="_blank"
+                       class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition duration-200">
+                        View Page
+                    </a>
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Page Form -->
+    <form method="POST" class="space-y-6">
+        {{ form.csrf_token }}
+        
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Main Content -->
+            <div class="lg:col-span-2 space-y-6">
+                <!-- Basic Information -->
+                <div class="bg-white rounded-lg shadow overflow-hidden">
+                    <div class="px-6 py-4 border-b border-gray-200">
+                        <h2 class="text-lg font-medium text-gray-900">Basic Information</h2>
+                    </div>
+                    <div class="p-6 space-y-4">
+                        <div>
+                            {{ form.title.label(class="block text-sm font-medium text-gray-700 mb-2") }}
+                            {{ form.title(class="w-full rounded-lg border-gray-300 focus:border-blue-500 focus:ring-blue-500") }}
+                            {% if form.title.errors %}
+                                <div class="text-xs text-red-600 mt-1">{{ form.title.errors[0] }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div>
+                            {{ form.meta_description.label(class="block text-sm font-medium text-gray-700 mb-2") }}
+                            {{ form.meta_description(class="w-full rounded-lg border-gray-300 focus:border-blue-500 focus:ring-blue-500", rows=2) }}
+                            {% if form.meta_description.errors %}
+                                <div class="text-xs text-red-600 mt-1">{{ form.meta_description.errors[0] }}</div>
+                            {% endif %}
+                            <p class="mt-1 text-sm text-gray-500">
+                                Brief description for search engines. Recommended length: 150-160 characters.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Content -->
+                <div class="bg-white rounded-lg shadow overflow-hidden">
+                    <div class="px-6 py-4 border-b border-gray-200">
+                        <h2 class="text-lg font-medium text-gray-900">Page Content</h2>
+                    </div>
+                    <div class="p-6">
+                        {{ form.content(class="w-full") }}
+                        {% if form.content.errors %}
+                            <div class="text-xs text-red-600 mt-1">{{ form.content.errors[0] }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <div class="space-y-6">
+                <!-- Publishing Options -->
+                <div class="bg-white rounded-lg shadow overflow-hidden">
+                    <div class="px-6 py-4 border-b border-gray-200">
+                        <h2 class="text-lg font-medium text-gray-900">Publishing</h2>
+                    </div>
+                    <div class="p-6 space-y-4">
+                        <div>
+                            {{ form.template.label(class="block text-sm font-medium text-gray-700 mb-2") }}
+                            {{ form.template(class="w-full rounded-lg border-gray-300 focus:border-blue-500 focus:ring-blue-500") }}
+                            {% if form.template.errors %}
+                                <div class="text-xs text-red-600 mt-1">{{ form.template.errors[0] }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="flex items-center">
+                            {{ form.is_published(class="rounded border-gray-300 text-blue-600 focus:ring-blue-500") }}
+                            {{ form.is_published.label(class="ml-2 text-sm text-gray-900") }}
+                        </div>
+                        
+                        {% if page %}
+                            <div class="pt-4 border-t border-gray-200">
+                                <div class="text-sm text-gray-500">
+                                    Created: {{ page.created_at|datetime }}
+                                    {% if page.author %}
+                                        by {{ page.author.username }}
+                                    {% endif %}
+                                </div>
+                                <div class="text-sm text-gray-500">
+                                    Last updated: {{ page.updated_at|datetime }}
+                                    {% if page.editor %}
+                                        by {{ page.editor.username }}
+                                    {% endif %}
+                                </div>
+                                {% if page.publish_date %}
+                                    <div class="text-sm text-gray-500">
+                                        Published: {{ page.publish_date|datetime }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Actions -->
+                <div class="bg-white rounded-lg shadow overflow-hidden">
+                    <div class="p-6 space-y-3">
+                        {{ form.submit(class="w-full bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition duration-200") }}
+                        
+                        <a href="{{ url_for('cms.pages') }}" 
+                           class="block w-full text-center px-4 py-2 text-gray-700 hover:text-gray-900">
+                            Cancel
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script>
+    // Auto-save draft functionality
+    let autoSaveTimeout;
+    const AUTOSAVE_DELAY = 30000; // 30 seconds
+
+    function autoSaveDraft() {
+        const form = document.querySelector('form');
+        const formData = new FormData(form);
+        formData.set('is_published', false); // Ensure it's saved as draft
+        
+        fetch(window.location.href, {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showToast('Draft saved automatically', 'success');
+            }
+        })
+        .catch(error => {
+            console.error('Error auto-saving:', error);
+        });
+    }
+
+    // Set up auto-save for form fields
+    document.querySelectorAll('form input, form textarea, form select').forEach(element => {
+        element.addEventListener('input', () => {
+            clearTimeout(autoSaveTimeout);
+            autoSaveTimeout = setTimeout(autoSaveDraft, AUTOSAVE_DELAY);
+        });
+    });
+
+    // Handle form submission
+    document.querySelector('form').addEventListener('submit', function(e) {
+        clearTimeout(autoSaveTimeout);
+    });
+
+    // Warn about unsaved changes when leaving page
+    let formChanged = false;
+    document.querySelectorAll('form input, form textarea, form select').forEach(element => {
+        element.addEventListener('change', () => {
+            formChanged = true;
+        });
+    });
+
+    window.addEventListener('beforeunload', (e) => {
+        if (formChanged) {
+            e.preventDefault();
+            e.returnValue = '';
+        }
+    });
+</script>
+{% endblock %}
