@@ -1,0 +1,45 @@
+2025-03-22 04:52:51,290 INFO: CMS startup [in /project/sandbox/user-workspace/CMSPython/app/__init__.py:126]
+2025-03-22 04:52:51,290 INFO: CMS startup [in /project/sandbox/user-workspace/CMSPython/run.py:20]
+2025-03-22 04:52:51,290 INFO: CMS startup [in /project/sandbox/user-workspace/CMSPython/run.py:20]
+2025-03-22 04:52:51,297 INFO: Database tables created successfully [in /project/sandbox/user-workspace/CMSPython/run.py:40]
+2025-03-22 04:52:51,297 INFO: Database tables created successfully [in /project/sandbox/user-workspace/CMSPython/run.py:40]
+2025-03-22 04:52:51,664 INFO: CMS startup [in /project/sandbox/user-workspace/CMSPython/app/__init__.py:126]
+2025-03-22 04:52:51,664 INFO: CMS startup [in /project/sandbox/user-workspace/CMSPython/run.py:20]
+2025-03-22 04:52:51,664 INFO: CMS startup [in /project/sandbox/user-workspace/CMSPython/run.py:20]
+2025-03-22 04:52:51,671 INFO: Database tables created successfully [in /project/sandbox/user-workspace/CMSPython/run.py:40]
+2025-03-22 04:52:51,671 INFO: Database tables created successfully [in /project/sandbox/user-workspace/CMSPython/run.py:40]
+2025-03-22 04:52:55,078 INFO: CMS startup [in /project/sandbox/user-workspace/CMSPython/app/__init__.py:126]
+2025-03-22 04:52:55,078 INFO: CMS startup [in /project/sandbox/user-workspace/CMSPython/run.py:20]
+2025-03-22 04:52:55,078 INFO: CMS startup [in /project/sandbox/user-workspace/CMSPython/run.py:20]
+2025-03-22 04:52:55,085 INFO: Database tables created successfully [in /project/sandbox/user-workspace/CMSPython/run.py:40]
+2025-03-22 04:52:55,085 INFO: Database tables created successfully [in /project/sandbox/user-workspace/CMSPython/run.py:40]
+2025-03-22 04:56:12,154 ERROR: Database error in index route: (sqlite3.OperationalError) no such column: products.is_featured
+[SQL: SELECT products.id AS products_id, products.name AS products_name, products.slug AS products_slug, products.description AS products_description, products.price AS products_price, products.stock AS products_stock, products.image AS products_image, products.is_active AS products_is_active, products.is_featured AS products_is_featured, products.created_at AS products_created_at, products.updated_at AS products_updated_at, products.category_id AS products_category_id 
+FROM products 
+WHERE products.is_active = 1 AND products.is_featured = 1
+ LIMIT ? OFFSET ?]
+[parameters: (6, 0)]
+(Background on this error at: https://sqlalche.me/e/14/e3q8) [in /project/sandbox/user-workspace/CMSPython/app/routes/main.py:36]
+2025-03-22 04:56:12,154 ERROR: Database error in index route: (sqlite3.OperationalError) no such column: products.is_featured
+[SQL: SELECT products.id AS products_id, products.name AS products_name, products.slug AS products_slug, products.description AS products_description, products.price AS products_price, products.stock AS products_stock, products.image AS products_image, products.is_active AS products_is_active, products.is_featured AS products_is_featured, products.created_at AS products_created_at, products.updated_at AS products_updated_at, products.category_id AS products_category_id 
+FROM products 
+WHERE products.is_active = 1 AND products.is_featured = 1
+ LIMIT ? OFFSET ?]
+[parameters: (6, 0)]
+(Background on this error at: https://sqlalche.me/e/14/e3q8) [in /project/sandbox/user-workspace/CMSPython/app/routes/main.py:36]
+2025-03-22 04:56:26,111 ERROR: Database error in index route: (sqlite3.OperationalError) no such column: products.is_featured
+[SQL: SELECT products.id AS products_id, products.name AS products_name, products.slug AS products_slug, products.description AS products_description, products.price AS products_price, products.stock AS products_stock, products.image AS products_image, products.is_active AS products_is_active, products.is_featured AS products_is_featured, products.created_at AS products_created_at, products.updated_at AS products_updated_at, products.category_id AS products_category_id 
+FROM products 
+WHERE products.is_active = 1 AND products.is_featured = 1
+ LIMIT ? OFFSET ?]
+[parameters: (6, 0)]
+(Background on this error at: https://sqlalche.me/e/14/e3q8) [in /project/sandbox/user-workspace/CMSPython/app/routes/main.py:36]
+2025-03-22 04:56:26,111 ERROR: Database error in index route: (sqlite3.OperationalError) no such column: products.is_featured
+[SQL: SELECT products.id AS products_id, products.name AS products_name, products.slug AS products_slug, products.description AS products_description, products.price AS products_price, products.stock AS products_stock, products.image AS products_image, products.is_active AS products_is_active, products.is_featured AS products_is_featured, products.created_at AS products_created_at, products.updated_at AS products_updated_at, products.category_id AS products_category_id 
+FROM products 
+WHERE products.is_active = 1 AND products.is_featured = 1
+ LIMIT ? OFFSET ?]
+[parameters: (6, 0)]
+(Background on this error at: https://sqlalche.me/e/14/e3q8) [in /project/sandbox/user-workspace/CMSPython/app/routes/main.py:36]
+2025-03-22 05:02:42,621 ERROR: Error in contact form submission: (530, b'5.7.0 Authentication Required. For more information, go to\n5.7.0  https://support.google.com/mail/?p=WantAuthError 46e09a7af769-72c0abb96f2sm732203a34.22 - gsmtp', 'junkeymonkey6@gmail.com') [in /project/sandbox/user-workspace/CMSPython/app/routes/main.py:122]
+2025-03-22 05:02:42,621 ERROR: Error in contact form submission: (530, b'5.7.0 Authentication Required. For more information, go to\n5.7.0  https://support.google.com/mail/?p=WantAuthError 46e09a7af769-72c0abb96f2sm732203a34.22 - gsmtp', 'junkeymonkey6@gmail.com') [in /project/sandbox/user-workspace/CMSPython/app/routes/main.py:122]
