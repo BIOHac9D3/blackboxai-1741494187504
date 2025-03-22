@@ -1,0 +1,296 @@
+{% extends "admin/base_admin.html" %}
+
+{% block title %}{% if order %}Edit Order #{{ order.id }}{% else %}New Order{% endif %} - Admin{% endblock %}
+
+{% block admin_content %}
+<div class="space-y-6">
+    <!-- Page Header -->
+    <div class="flex items-center justify-between">
+        <h1 class="text-2xl font-semibold text-gray-900">
+            {% if order %}Edit Order #{{ order.id }}{% else %}New Order{% endif %}
+        </h1>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Order Form -->
+        <div class="lg:col-span-2">
+            <form id="order-form" method="POST" class="space-y-6">
+                {{ form.csrf_token }}
+                
+                <!-- Customer Information -->
+                <div class="bg-white rounded-lg shadow overflow-hidden">
+                    <div class="px-6 py-4 border-b border-gray-200">
+                        <h2 class="text-lg font-medium text-gray-900">Customer Information</h2>
+                    </div>
+                    <div class="p-6 space-y-4">
+                        <div>
+                            {{ form.email.label(class="block text-sm font-medium text-gray-700 mb-2") }}
+                            {{ form.email(class="w-full rounded-lg border-gray-300 focus:border-blue-500 focus:ring-blue-500") }}
+                            {% if form.email.errors %}
+                                <div class="text-xs text-red-600 mt-1">{{ form.email.errors[0] }}</div>
+                            {% endif %}
+                        </div>
+                        <div>
+                            {{ form.phone.label(class="block text-sm font-medium text-gray-700 mb-2") }}
+                            {{ form.phone(class="w-full rounded-lg border-gray-300 focus:border-blue-500 focus:ring-blue-500") }}
+                            {% if form.phone.errors %}
+                                <div class="text-xs text-red-600 mt-1">{{ form.phone.errors[0] }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Shipping Information -->
+                <div class="bg-white rounded-lg shadow overflow-hidden">
+                    <div class="px-6 py-4 border-b border-gray-200">
+                        <h2 class="text-lg font-medium text-gray-900">Shipping Information</h2>
+                    </div>
+                    <div class="p-6 space-y-4">
+                        <div>
+                            {{ form.shipping_address.label(class="block text-sm font-medium text-gray-700 mb-2") }}
+                            {{ form.shipping_address(class="w-full rounded-lg border-gray-300 focus:border-blue-500 focus:ring-blue-500", rows=3) }}
+                            {% if form.shipping_address.errors %}
+                                <div class="text-xs text-red-600 mt-1">{{ form.shipping_address.errors[0] }}</div>
+                            {% endif %}
+                        </div>
+                        <div>
+                            {{ form.billing_address.label(class="block text-sm font-medium text-gray-700 mb-2") }}
+                            {{ form.billing_address(class="w-full rounded-lg border-gray-300 focus:border-blue-500 focus:ring-blue-500", rows=3) }}
+                            {% if form.billing_address.errors %}
+                                <div class="text-xs text-red-600 mt-1">{{ form.billing_address.errors[0] }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Order Status -->
+                <div class="bg-white rounded-lg shadow overflow-hidden">
+                    <div class="px-6 py-4 border-b border-gray-200">
+                        <h2 class="text-lg font-medium text-gray-900">Order Status</h2>
+                    </div>
+                    <div class="p-6 space-y-4">
+                        <div>
+                            {{ form.status.label(class="block text-sm font-medium text-gray-700 mb-2") }}
+                            {{ form.status(class="w-full rounded-lg border-gray-300 focus:border-blue-500 focus:ring-blue-500") }}
+                            {% if form.status.errors %}
+                                <div class="text-xs text-red-600 mt-1">{{ form.status.errors[0] }}</div>
+                            {% endif %}
+                        </div>
+                        <div>
+                            {{ form.tracking_number.label(class="block text-sm font-medium text-gray-700 mb-2") }}
+                            {{ form.tracking_number(class="w-full rounded-lg border-gray-300 focus:border-blue-500 focus:ring-blue-500") }}
+                            {% if form.tracking_number.errors %}
+                                <div class="text-xs text-red-600 mt-1">{{ form.tracking_number.errors[0] }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Notes -->
+                <div class="bg-white rounded-lg shadow overflow-hidden">
+                    <div class="px-6 py-4 border-b border-gray-200">
+                        <h2 class="text-lg font-medium text-gray-900">Order Notes</h2>
+                    </div>
+                    <div class="p-6">
+                        {{ form.notes.label(class="block text-sm font-medium text-gray-700 mb-2") }}
+                        {{ form.notes(class="w-full rounded-lg border-gray-300 focus:border-blue-500 focus:ring-blue-500", rows=4) }}
+                        {% if form.notes.errors %}
+                            <div class="text-xs text-red-600 mt-1">{{ form.notes.errors[0] }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Form Actions -->
+                <div class="flex justify-end space-x-3">
+                    <a href="{{ url_for('order.index') }}" 
+                       class="px-4 py-2 text-gray-700 hover:text-gray-900">
+                        Cancel
+                    </a>
+                    {{ form.submit(class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700") }}
+                </div>
+            </form>
+        </div>
+
+        <!-- Order Items -->
+        <div>
+            <div class="bg-white rounded-lg shadow overflow-hidden">
+                <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+                    <h2 class="text-lg font-medium text-gray-900">Order Items</h2>
+                    {% if order %}
+                    <button onclick="openAddItemModal()" 
+                            class="text-blue-600 hover:text-blue-900">
+                        <i class="fas fa-plus"></i>
+                    </button>
+                    {% endif %}
+                </div>
+                <div class="divide-y divide-gray-200">
+                    {% if order and order.items %}
+                        {% for item in order.items %}
+                        <div class="p-6 flex items-center" id="item-{{ item.id }}">
+                            <div class="flex-shrink-0 w-16 h-16">
+                                {% if item.product and item.product.image %}
+                                    <img class="w-16 h-16 rounded-lg object-cover" 
+                                         src="{{ url_for('static', filename=item.product.image) }}" 
+                                         alt="{{ item.product.name }}">
+                                {% else %}
+                                    <div class="w-16 h-16 rounded-lg bg-gray-200 flex items-center justify-center">
+                                        <i class="fas fa-box text-gray-400 text-2xl"></i>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="ml-6 flex-1">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <h3 class="text-sm font-medium text-gray-900">
+                                            {% if item.product %}
+                                                {{ item.product.name }}
+                                            {% else %}
+                                                Deleted Product
+                                            {% endif %}
+                                        </h3>
+                                        <p class="mt-1 text-sm text-gray-500">Quantity: {{ item.quantity }}</p>
+                                    </div>
+                                    <div class="flex items-center space-x-3">
+                                        <p class="text-sm font-medium text-gray-900">${{ "%.2f"|format(item.price) }}</p>
+                                        <button onclick="removeItem('{{ item.id }}')" 
+                                                class="text-red-600 hover:text-red-900">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="p-6 text-center text-gray-500">
+                            No items in this order
+                        </div>
+                    {% endif %}
+                </div>
+                {% if order and order.items %}
+                <div class="px-6 py-4 border-t border-gray-200 bg-gray-50">
+                    <div class="flex justify-between text-base font-medium text-gray-900">
+                        <p>Total</p>
+                        <p>${{ "%.2f"|format(order.total) }}</p>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Item Modal -->
+{% if order %}
+<div id="add-item-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden">
+    <div class="flex items-center justify-center min-h-screen px-4">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-md">
+            <div class="p-6 border-b border-gray-200">
+                <h3 class="text-lg font-medium text-gray-900">Add Item</h3>
+            </div>
+            <form id="add-item-form" class="p-6 space-y-4">
+                {{ item_form.csrf_token }}
+                <div>
+                    {{ item_form.product_id.label(class="block text-sm font-medium text-gray-700 mb-2") }}
+                    {{ item_form.product_id(class="w-full rounded-lg border-gray-300 focus:border-blue-500 focus:ring-blue-500") }}
+                    <div class="text-xs text-red-600 mt-1 hidden" id="product-error"></div>
+                </div>
+                <div>
+                    {{ item_form.quantity.label(class="block text-sm font-medium text-gray-700 mb-2") }}
+                    {{ item_form.quantity(class="w-full rounded-lg border-gray-300 focus:border-blue-500 focus:ring-blue-500") }}
+                    <div class="text-xs text-red-600 mt-1 hidden" id="quantity-error"></div>
+                </div>
+            </form>
+            <div class="p-6 border-t border-gray-200 flex justify-end space-x-3">
+                <button onclick="closeAddItemModal()" 
+                        class="px-4 py-2 text-gray-700 hover:text-gray-900">
+                    Cancel
+                </button>
+                <button onclick="addItem()" 
+                        class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                    Add Item
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script>
+    {% if order %}
+    function openAddItemModal() {
+        document.getElementById('add-item-modal').classList.remove('hidden');
+    }
+
+    function closeAddItemModal() {
+        document.getElementById('add-item-modal').classList.add('hidden');
+        document.getElementById('add-item-form').reset();
+        document.getElementById('product-error').classList.add('hidden');
+        document.getElementById('quantity-error').classList.add('hidden');
+    }
+
+    async function addItem() {
+        const form = document.getElementById('add-item-form');
+        const formData = new FormData(form);
+        
+        try {
+            const response = await fetch('{{ url_for("order.add_item", id=order.id) }}', {
+                method: 'POST',
+                body: formData
+            });
+            
+            const data = await response.json();
+            
+            if (response.ok) {
+                showToast(data.message, 'success');
+                setTimeout(() => window.location.reload(), 1000);
+            } else {
+                if (data.errors) {
+                    Object.entries(data.errors).forEach(([field, errors]) => {
+                        const errorDiv = document.getElementById(`${field}-error`);
+                        if (errorDiv) {
+                            errorDiv.textContent = errors.join(', ');
+                            errorDiv.classList.remove('hidden');
+                        }
+                    });
+                }
+                showToast(data.message || 'Failed to add item', 'error');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            showToast('An error occurred', 'error');
+        }
+    }
+
+    async function removeItem(itemId) {
+        if (!confirm('Are you sure you want to remove this item?')) return;
+        
+        try {
+            const response = await fetch(`{{ url_for("order.remove_item", order_id=order.id) }}/${itemId}`, {
+                method: 'DELETE',
+                headers: {
+                    'X-CSRFToken': document.querySelector('[name=csrf_token]').value
+                }
+            });
+            
+            const data = await response.json();
+            
+            if (response.ok) {
+                const itemElement = document.getElementById(`item-${itemId}`);
+                itemElement.remove();
+                showToast(data.message, 'success');
+                setTimeout(() => window.location.reload(), 1000);
+            } else {
+                showToast(data.message || 'Failed to remove item', 'error');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            showToast('An error occurred', 'error');
+        }
+    }
+    {% endif %}
+</script>
+{% endblock %}
