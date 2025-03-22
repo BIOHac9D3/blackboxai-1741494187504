@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+
+{% block title %}About Us{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+        <!-- Header -->
+        <div class="px-4 py-5 sm:px-6 border-b border-gray-200">
+            {% if page %}
+                <h1 class="text-3xl font-bold text-gray-900">{{ page.title }}</h1>
+                {% if page.subtitle %}
+                    <p class="mt-1 max-w-2xl text-sm text-gray-500">{{ page.subtitle }}</p>
+                {% endif %}
+            {% else %}
+                <h1 class="text-3xl font-bold text-gray-900">About Us</h1>
+                <p class="mt-1 max-w-2xl text-sm text-gray-500">Learn more about our company and mission</p>
+            {% endif %}
+        </div>
+
+        <!-- Content -->
+        <div class="px-4 py-6 sm:px-6">
+            <div class="prose prose-blue max-w-none">
+                {% if page %}
+                    {{ page.content|safe }}
+                {% else %}
+                    <div class="space-y-6">
+                        <h2 class="text-2xl font-bold text-gray-900">Our Story</h2>
+                        <p class="text-gray-600">
+                            Welcome to our CMS platform. We are dedicated to providing a modern, flexible, and user-friendly 
+                            content management system that helps businesses and individuals manage their online presence effectively.
+                        </p>
+
+                        <h2 class="text-2xl font-bold text-gray-900">Our Mission</h2>
+                        <p class="text-gray-600">
+                            Our mission is to empower users with powerful tools that make content management simple and efficient. 
+                            We believe in creating solutions that are both powerful and easy to use.
+                        </p>
+
+                        <h2 class="text-2xl font-bold text-gray-900">Why Choose Us</h2>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div class="bg-gray-50 p-6 rounded-lg">
+                                <div class="text-blue-600 mb-4">
+                                    <i class="fas fa-bolt text-3xl"></i>
+                                </div>
+                                <h3 class="text-lg font-medium text-gray-900">Fast & Efficient</h3>
+                                <p class="mt-2 text-gray-600">
+                                    Built with performance in mind, ensuring your content loads quickly and efficiently.
+                                </p>
+                            </div>
+                            <div class="bg-gray-50 p-6 rounded-lg">
+                                <div class="text-blue-600 mb-4">
+                                    <i class="fas fa-shield-alt text-3xl"></i>
+                                </div>
+                                <h3 class="text-lg font-medium text-gray-900">Secure</h3>
+                                <p class="mt-2 text-gray-600">
+                                    Security is our priority, with robust measures to protect your content and data.
+                                </p>
+                            </div>
+                            <div class="bg-gray-50 p-6 rounded-lg">
+                                <div class="text-blue-600 mb-4">
+                                    <i class="fas fa-users text-3xl"></i>
+                                </div>
+                                <h3 class="text-lg font-medium text-gray-900">User-Friendly</h3>
+                                <p class="mt-2 text-gray-600">
+                                    Intuitive interface designed for users of all technical levels.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Call to Action -->
+    <div class="mt-8 bg-blue-700 rounded-lg shadow-xl overflow-hidden">
+        <div class="px-4 py-12 sm:px-6 lg:py-16 lg:px-8">
+            <div class="max-w-3xl mx-auto text-center">
+                <h2 class="text-3xl font-extrabold text-white sm:text-4xl">
+                    Ready to get started?
+                </h2>
+                <p class="mt-4 text-lg leading-6 text-blue-200">
+                    Join us today and discover how our CMS can help you manage your content effectively.
+                </p>
+                <div class="mt-8 flex justify-center">
+                    <div class="inline-flex rounded-md shadow">
+                        <a href="{{ url_for('auth.register') }}"
+                           class="inline-flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-md text-blue-600 bg-white hover:bg-blue-50">
+                            Get started
+                            <i class="fas fa-arrow-right ml-2"></i>
+                        </a>
+                    </div>
+                    <div class="ml-3 inline-flex">
+                        <a href="{{ url_for('main.contact') }}"
+                           class="inline-flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-800 hover:bg-blue-900">
+                            Contact us
+                            <i class="fas fa-envelope ml-2"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
