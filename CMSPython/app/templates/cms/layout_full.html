@@ -1,0 +1,232 @@
+{% extends "base.html" %}
+
+{% block title %}{{ page.title }}{% endblock %}
+
+{% block meta %}
+    {% if page.meta_description %}
+        <meta name="description" content="{{ page.meta_description }}">
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="bg-white">
+    <!-- Hero Section -->
+    <div class="relative">
+        <div class="absolute inset-0">
+            {% if page.header_image %}
+                <img class="w-full h-full object-cover" src="{{ url_for('static', filename=page.header_image) }}" alt="{{ page.title }}">
+                <div class="absolute inset-0 bg-gray-900 opacity-75"></div>
+            {% endif %}
+        </div>
+        <div class="relative max-w-7xl mx-auto py-32 px-4 sm:px-6 lg:px-8 flex items-center min-h-[600px]">
+            <div class="max-w-3xl">
+                <h1 class="text-4xl font-extrabold tracking-tight text-white sm:text-5xl lg:text-6xl">
+                    {{ page.title }}
+                </h1>
+                {% if page.subtitle %}
+                    <p class="mt-6 text-xl text-gray-300">
+                        {{ page.subtitle }}
+                    </p>
+                {% endif %}
+                {% if page.cta_button %}
+                    <div class="mt-10">
+                        <a href="{{ page.cta_button.url }}" 
+                           class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700">
+                            {{ page.cta_button.text }}
+                            {% if page.cta_button.icon %}
+                                <i class="{{ page.cta_button.icon }} ml-3"></i>
+                            {% endif %}
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="relative">
+        {% for section in page.sections %}
+            {% if section.type == 'content' %}
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
+                    {% if section.title %}
+                        <h2 class="text-3xl font-extrabold text-gray-900 text-center mb-12">
+                            {{ section.title }}
+                        </h2>
+                    {% endif %}
+                    <div class="prose prose-lg max-w-none">
+                        {{ section.content|safe }}
+                    </div>
+                </div>
+
+            {% elif section.type == 'features' %}
+                <div class="bg-gray-50 py-16 sm:py-24">
+                    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                        {% if section.title %}
+                            <h2 class="text-3xl font-extrabold text-gray-900 text-center mb-12">
+                                {{ section.title }}
+                            </h2>
+                        {% endif %}
+                        <div class="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
+                            {% for feature in section.features %}
+                                <div class="bg-white rounded-lg shadow-sm p-6">
+                                    {% if feature.icon %}
+                                        <div class="text-blue-600 text-3xl mb-4">
+                                            <i class="{{ feature.icon }}"></i>
+                                        </div>
+                                    {% endif %}
+                                    <h3 class="text-lg font-medium text-gray-900">{{ feature.title }}</h3>
+                                    <p class="mt-2 text-base text-gray-500">{{ feature.description }}</p>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+
+            {% elif section.type == 'testimonials' %}
+                <div class="py-16 sm:py-24">
+                    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                        {% if section.title %}
+                            <h2 class="text-3xl font-extrabold text-gray-900 text-center mb-12">
+                                {{ section.title }}
+                            </h2>
+                        {% endif %}
+                        <div class="grid grid-cols-1 gap-8 lg:grid-cols-3">
+                            {% for testimonial in section.testimonials %}
+                                <div class="bg-white rounded-lg shadow-sm p-6">
+                                    <div class="text-yellow-400 mb-4">
+                                        {% for i in range(testimonial.rating) %}
+                                            <i class="fas fa-star"></i>
+                                        {% endfor %}
+                                    </div>
+                                    <blockquote class="text-gray-700 italic mb-4">
+                                        "{{ testimonial.quote }}"
+                                    </blockquote>
+                                    <div class="flex items-center">
+                                        {% if testimonial.avatar %}
+                                            <img src="{{ url_for('static', filename=testimonial.avatar) }}" 
+                                                 alt="{{ testimonial.author }}"
+                                                 class="w-10 h-10 rounded-full">
+                                        {% endif %}
+                                        <div class="ml-3">
+                                            <p class="text-sm font-medium text-gray-900">{{ testimonial.author }}</p>
+                                            {% if testimonial.title %}
+                                                <p class="text-sm text-gray-500">{{ testimonial.title }}</p>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+
+            {% elif section.type == 'cta' %}
+                <div class="bg-blue-700">
+                    <div class="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:py-16 lg:px-8 lg:flex lg:items-center lg:justify-between">
+                        <div>
+                            <h2 class="text-3xl font-extrabold tracking-tight text-white sm:text-4xl">
+                                {{ section.title }}
+                            </h2>
+                            {% if section.description %}
+                                <p class="mt-3 max-w-3xl text-lg text-blue-200">
+                                    {{ section.description }}
+                                </p>
+                            {% endif %}
+                        </div>
+                        {% if section.button %}
+                            <div class="mt-8 flex lg:mt-0 lg:flex-shrink-0">
+                                <div class="inline-flex rounded-md shadow">
+                                    <a href="{{ section.button.url }}" 
+                                       class="inline-flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-md text-blue-600 bg-white hover:bg-blue-50">
+                                        {{ section.button.text }}
+                                    </a>
+                                </div>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+            {% elif section.type == 'faq' %}
+                <div class="bg-gray-50 py-16 sm:py-24">
+                    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                        {% if section.title %}
+                            <h2 class="text-3xl font-extrabold text-gray-900 text-center mb-12">
+                                {{ section.title }}
+                            </h2>
+                        {% endif %}
+                        <dl class="space-y-8">
+                            {% for item in section.items %}
+                                <div class="bg-white rounded-lg shadow-sm p-6">
+                                    <dt class="text-lg font-medium text-gray-900">{{ item.question }}</dt>
+                                    <dd class="mt-2 text-base text-gray-500">{{ item.answer }}</dd>
+                                </div>
+                            {% endfor %}
+                        </dl>
+                    </div>
+                </div>
+            {% endif %}
+        {% endfor %}
+
+        {% if page.show_contact_form %}
+            <!-- Contact Form -->
+            <div class="bg-white py-16 sm:py-24">
+                <div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <h2 class="text-3xl font-extrabold text-gray-900 text-center">Contact Us</h2>
+                    <form method="POST" action="{{ url_for('cms.contact') }}" class="mt-8 space-y-6">
+                        {{ contact_form.csrf_token }}
+                        <div>
+                            {{ contact_form.name.label(class="block text-sm font-medium text-gray-700") }}
+                            {{ contact_form.name(class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500") }}
+                            {% if contact_form.name.errors %}
+                                <p class="mt-1 text-sm text-red-600">{{ contact_form.name.errors[0] }}</p>
+                            {% endif %}
+                        </div>
+                        <div>
+                            {{ contact_form.email.label(class="block text-sm font-medium text-gray-700") }}
+                            {{ contact_form.email(class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500") }}
+                            {% if contact_form.email.errors %}
+                                <p class="mt-1 text-sm text-red-600">{{ contact_form.email.errors[0] }}</p>
+                            {% endif %}
+                        </div>
+                        <div>
+                            {{ contact_form.subject.label(class="block text-sm font-medium text-gray-700") }}
+                            {{ contact_form.subject(class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500") }}
+                            {% if contact_form.subject.errors %}
+                                <p class="mt-1 text-sm text-red-600">{{ contact_form.subject.errors[0] }}</p>
+                            {% endif %}
+                        </div>
+                        <div>
+                            {{ contact_form.message.label(class="block text-sm font-medium text-gray-700") }}
+                            {{ contact_form.message(rows=5, class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500") }}
+                            {% if contact_form.message.errors %}
+                                <p class="mt-1 text-sm text-red-600">{{ contact_form.message.errors[0] }}</p>
+                            {% endif %}
+                        </div>
+                        <div>
+                            <button type="submit"
+                                    class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                                Send Message
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script>
+    // Handle contact form submission
+    const form = document.querySelector('form');
+    if (form) {
+        form.addEventListener('submit', function() {
+            const submitButton = this.querySelector('button[type="submit"]');
+            submitButton.disabled = true;
+            submitButton.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Sending...';
+        });
+    }
+</script>
+{% endblock %}
