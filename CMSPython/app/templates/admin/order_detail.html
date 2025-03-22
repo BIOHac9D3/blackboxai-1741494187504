@@ -1,0 +1,174 @@
+{% extends "admin/base_admin.html" %}
+
+{% block title %}Order #{{ order.id }} - Admin{% endblock %}
+
+{% block admin_content %}
+<div class="space-y-6">
+    <!-- Page Header -->
+    <div class="flex items-center justify-between">
+        <div>
+            <h1 class="text-2xl font-semibold text-gray-900">Order #{{ order.id }}</h1>
+            <p class="mt-1 text-sm text-gray-600">Placed on {{ order.created_at|datetime }}</p>
+        </div>
+        <div class="flex space-x-3">
+            <a href="{{ url_for('order.edit', id=order.id) }}" 
+               class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition duration-200">
+                Edit Order
+            </a>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Order Details -->
+        <div class="lg:col-span-2 space-y-6">
+            <!-- Order Items -->
+            <div class="bg-white rounded-lg shadow overflow-hidden">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h2 class="text-lg font-medium text-gray-900">Order Items</h2>
+                </div>
+                <div class="divide-y divide-gray-200">
+                    {% for item in order.items %}
+                    <div class="p-6 flex items-center">
+                        <div class="flex-shrink-0 w-16 h-16">
+                            {% if item.product and item.product.image %}
+                                <img class="w-16 h-16 rounded-lg object-cover" 
+                                     src="{{ url_for('static', filename=item.product.image) }}" 
+                                     alt="{{ item.product.name }}">
+                            {% else %}
+                                <div class="w-16 h-16 rounded-lg bg-gray-200 flex items-center justify-center">
+                                    <i class="fas fa-box text-gray-400 text-2xl"></i>
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="ml-6 flex-1">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <h3 class="text-sm font-medium text-gray-900">
+                                        {% if item.product %}
+                                            {{ item.product.name }}
+                                        {% else %}
+                                            Deleted Product
+                                        {% endif %}
+                                    </h3>
+                                    <p class="mt-1 text-sm text-gray-500">Quantity: {{ item.quantity }}</p>
+                                </div>
+                                <p class="text-sm font-medium text-gray-900">${{ "%.2f"|format(item.price) }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                <div class="px-6 py-4 border-t border-gray-200 bg-gray-50">
+                    <div class="flex justify-between text-base font-medium text-gray-900">
+                        <p>Total</p>
+                        <p>${{ "%.2f"|format(order.total) }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Order Timeline -->
+            <div class="bg-white rounded-lg shadow overflow-hidden">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h2 class="text-lg font-medium text-gray-900">Order Status</h2>
+                </div>
+                <div class="p-6">
+                    <div class="flex items-center">
+                        {% set status_order = ['pending', 'processing', 'shipped', 'delivered'] %}
+                        {% for status in status_order %}
+                            <div class="flex items-center {% if not loop.last %}flex-1{% endif %}">
+                                <div class="relative">
+                                    <div class="w-8 h-8 rounded-full flex items-center justify-center
+                                                {% if status == order.status %}bg-blue-600 text-white
+                                                {% elif status_order.index(status) < status_order.index(order.status) %}
+                                                    bg-green-600 text-white
+                                                {% else %}bg-gray-200 text-gray-400{% endif %}">
+                                        {% if status == 'pending' %}
+                                            <i class="fas fa-clock"></i>
+                                        {% elif status == 'processing' %}
+                                            <i class="fas fa-cog"></i>
+                                        {% elif status == 'shipped' %}
+                                            <i class="fas fa-truck"></i>
+                                        {% elif status == 'delivered' %}
+                                            <i class="fas fa-check"></i>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                {% if not loop.last %}
+                                    <div class="flex-1 h-0.5 {% if status_order.index(status) < status_order.index(order.status) %}bg-green-600{% else %}bg-gray-200{% endif %}"></div>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    </div>
+                    <div class="mt-4 grid grid-cols-4 text-sm text-center">
+                        {% for status in status_order %}
+                            <div class="{% if status == order.status %}text-blue-600 font-medium{% else %}text-gray-500{% endif %}">
+                                {{ status|title }}
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Customer Information -->
+        <div class="space-y-6">
+            <!-- Customer Details -->
+            <div class="bg-white rounded-lg shadow overflow-hidden">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h2 class="text-lg font-medium text-gray-900">Customer Information</h2>
+                </div>
+                <div class="p-6 space-y-4">
+                    <div>
+                        <h3 class="text-sm font-medium text-gray-500">Email</h3>
+                        <p class="mt-1 text-sm text-gray-900">{{ order.email }}</p>
+                    </div>
+                    {% if order.phone %}
+                    <div>
+                        <h3 class="text-sm font-medium text-gray-500">Phone</h3>
+                        <p class="mt-1 text-sm text-gray-900">{{ order.phone }}</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Shipping Information -->
+            <div class="bg-white rounded-lg shadow overflow-hidden">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h2 class="text-lg font-medium text-gray-900">Shipping Information</h2>
+                </div>
+                <div class="p-6 space-y-4">
+                    <div>
+                        <h3 class="text-sm font-medium text-gray-500">Shipping Address</h3>
+                        <p class="mt-1 text-sm text-gray-900 whitespace-pre-line">{{ order.shipping_address }}</p>
+                    </div>
+                    {% if order.tracking_number %}
+                    <div>
+                        <h3 class="text-sm font-medium text-gray-500">Tracking Number</h3>
+                        <p class="mt-1 text-sm text-gray-900">{{ order.tracking_number }}</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Notes -->
+            {% if order.notes %}
+            <div class="bg-white rounded-lg shadow overflow-hidden">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h2 class="text-lg font-medium text-gray-900">Order Notes</h2>
+                </div>
+                <div class="p-6">
+                    <p class="text-sm text-gray-900 whitespace-pre-line">{{ order.notes }}</p>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script>
+    // Add any order-specific JavaScript here
+</script>
+{% endblock %}
