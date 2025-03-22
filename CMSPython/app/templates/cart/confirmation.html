@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+
+{% block title %}Order Confirmation{% endblock %}
+
+{% block content %}
+<div class="bg-gray-50">
+    <div class="max-w-3xl mx-auto py-16 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-xl">
+            <h1 class="text-sm font-semibold uppercase tracking-wide text-blue-600">Thank you!</h1>
+            <p class="mt-2 text-4xl font-extrabold tracking-tight sm:text-5xl">Order Confirmed</p>
+            <p class="mt-2 text-base text-gray-500">Your order has been successfully placed and will be processed shortly.</p>
+        </div>
+
+        <div class="mt-10 border-t border-gray-200">
+            <!-- Order Details -->
+            <div class="mt-10">
+                <h2 class="text-lg font-medium text-gray-900">Order Details</h2>
+                <dl class="mt-4 text-sm">
+                    <div class="flex justify-between py-3 border-b border-gray-200">
+                        <dt class="font-medium text-gray-900">Order number</dt>
+                        <dd class="text-gray-700">{{ order.id }}</dd>
+                    </div>
+                    <div class="flex justify-between py-3 border-b border-gray-200">
+                        <dt class="font-medium text-gray-900">Order date</dt>
+                        <dd class="text-gray-700">{{ order.created_at|datetime }}</dd>
+                    </div>
+                    <div class="flex justify-between py-3 border-b border-gray-200">
+                        <dt class="font-medium text-gray-900">Status</dt>
+                        <dd class="text-gray-700">{{ order.status|title }}</dd>
+                    </div>
+                    <div class="flex justify-between py-3 border-b border-gray-200">
+                        <dt class="font-medium text-gray-900">Email</dt>
+                        <dd class="text-gray-700">{{ order.email }}</dd>
+                    </div>
+                </dl>
+            </div>
+
+            <!-- Items -->
+            <div class="mt-10">
+                <h2 class="text-lg font-medium text-gray-900">Items ordered</h2>
+                <ul class="mt-4 divide-y divide-gray-200">
+                    {% for item in order.items %}
+                    <li class="py-4 flex">
+                        <div class="flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden">
+                            {% if item.product.image %}
+                                <img src="{{ url_for('static', filename=item.product.image) }}"
+                                     alt="{{ item.product.name }}"
+                                     class="w-full h-full object-center object-cover">
+                            {% else %}
+                                <div class="w-full h-full bg-gray-200 flex items-center justify-center">
+                                    <i class="fas fa-box text-gray-400 text-xl"></i>
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="ml-4 flex-1">
+                            <div class="flex justify-between">
+                                <h3 class="text-sm font-medium text-gray-900">{{ item.product.name }}</h3>
+                                <p class="text-sm font-medium text-gray-900">${{ "%.2f"|format(item.price) }}</p>
+                            </div>
+                            <p class="mt-1 text-sm text-gray-500">Quantity: {{ item.quantity }}</p>
+                        </div>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+
+            <!-- Totals -->
+            <dl class="mt-10 space-y-4">
+                <div class="flex justify-between">
+                    <dt class="text-sm text-gray-600">Subtotal</dt>
+                    <dd class="text-sm font-medium text-gray-900">${{ "%.2f"|format(order.subtotal) }}</dd>
+                </div>
+                <div class="flex justify-between">
+                    <dt class="text-sm text-gray-600">Shipping</dt>
+                    <dd class="text-sm font-medium text-gray-900">${{ "%.2f"|format(order.shipping) }}</dd>
+                </div>
+                <div class="flex justify-between">
+                    <dt class="text-sm text-gray-600">Tax</dt>
+                    <dd class="text-sm font-medium text-gray-900">${{ "%.2f"|format(order.tax) }}</dd>
+                </div>
+                <div class="flex justify-between border-t border-gray-200 pt-4">
+                    <dt class="text-base font-medium text-gray-900">Total</dt>
+                    <dd class="text-base font-medium text-gray-900">${{ "%.2f"|format(order.total) }}</dd>
+                </div>
+            </dl>
+
+            <!-- Shipping Information -->
+            <div class="mt-10">
+                <h2 class="text-lg font-medium text-gray-900">Shipping Information</h2>
+                <div class="mt-4 text-sm">
+                    <p class="font-medium text-gray-900">{{ order.first_name }} {{ order.last_name }}</p>
+                    <div class="mt-2 text-gray-700">
+                        <p>{{ order.address }}</p>
+                        {% if order.address2 %}
+                            <p>{{ order.address2 }}</p>
+                        {% endif %}
+                        <p>{{ order.city }}, {{ order.state }} {{ order.zip_code }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Next Steps -->
+            <div class="mt-10 border-t border-gray-200 pt-10">
+                <h2 class="text-lg font-medium text-gray-900">What's next?</h2>
+                <div class="mt-4 prose prose-sm text-gray-500">
+                    <ul role="list" class="list-disc pl-4">
+                        <li>You will receive an order confirmation email shortly.</li>
+                        <li>We will notify you when your order ships.</li>
+                        <li>You can track your order status in your account dashboard.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="mt-10 flex justify-center space-x-4">
+                {% if current_user.is_authenticated %}
+                    <a href="{{ url_for('auth.profile') }}" 
+                       class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700">
+                        View Order History
+                    </a>
+                {% endif %}
+                <a href="{{ url_for('product.index') }}" 
+                   class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                    Continue Shopping
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
