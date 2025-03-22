@@ -1,0 +1,187 @@
+{% extends "admin/base_admin.html" %}
+
+{% block title %}Dashboard - Admin{% endblock %}
+
+{% block admin_content %}
+<!-- Page header -->
+<div class="mb-8">
+    <h1 class="text-2xl font-semibold text-gray-900">Dashboard</h1>
+    <p class="mt-1 text-sm text-gray-600">Overview of your store's performance</p>
+</div>
+
+<!-- Stats cards -->
+<div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+    <!-- Products stats -->
+    <div class="stats-card">
+        <div class="stats-card-title">Total Products</div>
+        <div class="stats-card-value">{{ product_count }}</div>
+        <div class="stats-card-change positive">
+            <i class="fas fa-box mr-1"></i>
+            <span>Active Products</span>
+        </div>
+    </div>
+    
+    <!-- Orders stats -->
+    <div class="stats-card">
+        <div class="stats-card-title">Total Orders</div>
+        <div class="stats-card-value">{{ order_count }}</div>
+        <div class="stats-card-change">
+            <i class="fas fa-shopping-cart mr-1"></i>
+            <span>Orders Today</span>
+        </div>
+    </div>
+    
+    <!-- Users stats -->
+    <div class="stats-card">
+        <div class="stats-card-title">Total Users</div>
+        <div class="stats-card-value">{{ user_count }}</div>
+        <div class="stats-card-change">
+            <i class="fas fa-users mr-1"></i>
+            <span>Registered Users</span>
+        </div>
+    </div>
+    
+    <!-- Pages stats -->
+    <div class="stats-card">
+        <div class="stats-card-title">Published Pages</div>
+        <div class="stats-card-value">{{ page_count }}</div>
+        <div class="stats-card-change">
+            <i class="fas fa-file-alt mr-1"></i>
+            <span>Active Pages</span>
+        </div>
+    </div>
+</div>
+
+<!-- Recent activity section -->
+<div class="mt-8 grid grid-cols-1 gap-5 lg:grid-cols-2">
+    <!-- Recent orders -->
+    <div class="bg-white rounded-lg shadow">
+        <div class="p-6">
+            <h2 class="text-lg font-medium text-gray-900">Recent Orders</h2>
+            <div class="mt-4">
+                {% if recent_orders %}
+                    <div class="flow-root">
+                        <ul class="-my-5 divide-y divide-gray-200">
+                            {% for order in recent_orders %}
+                            <li class="py-4">
+                                <div class="flex items-center space-x-4">
+                                    <div class="flex-shrink-0">
+                                        <i class="fas fa-shopping-bag text-gray-400 text-2xl"></i>
+                                    </div>
+                                    <div class="flex-1 min-w-0">
+                                        <p class="text-sm font-medium text-gray-900 truncate">
+                                            Order #{{ order.id }}
+                                        </p>
+                                        <p class="text-sm text-gray-500">
+                                            {{ order.email }}
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium 
+                                                     {% if order.status == 'pending' %}bg-yellow-100 text-yellow-800
+                                                     {% elif order.status == 'processing' %}bg-blue-100 text-blue-800
+                                                     {% elif order.status == 'shipped' %}bg-green-100 text-green-800
+                                                     {% elif order.status == 'delivered' %}bg-green-100 text-green-800
+                                                     {% else %}bg-gray-100 text-gray-800{% endif %}">
+                                            {{ order.status|title }}
+                                        </span>
+                                    </div>
+                                    <div class="flex-shrink-0 text-sm text-gray-500">
+                                        {{ order.created_at|datetime }}
+                                    </div>
+                                </div>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    <div class="mt-6">
+                        <a href="{{ url_for('order.index') }}" 
+                           class="w-full flex justify-center items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                            View all orders
+                        </a>
+                    </div>
+                {% else %}
+                    <p class="text-gray-500 text-sm">No recent orders</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Low stock products -->
+    <div class="bg-white rounded-lg shadow">
+        <div class="p-6">
+            <h2 class="text-lg font-medium text-gray-900">Low Stock Products</h2>
+            <div class="mt-4">
+                {% if low_stock_products %}
+                    <div class="flow-root">
+                        <ul class="-my-5 divide-y divide-gray-200">
+                            {% for product in low_stock_products %}
+                            <li class="py-4">
+                                <div class="flex items-center space-x-4">
+                                    <div class="flex-shrink-0">
+                                        {% if product.image %}
+                                            <img class="h-8 w-8 rounded-full object-cover" 
+                                                 src="{{ url_for('static', filename=product.image) }}" 
+                                                 alt="{{ product.name }}">
+                                        {% else %}
+                                            <div class="h-8 w-8 rounded-full bg-gray-200 flex items-center justify-center">
+                                                <i class="fas fa-box text-gray-400"></i>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="flex-1 min-w-0">
+                                        <p class="text-sm font-medium text-gray-900 truncate">
+                                            {{ product.name }}
+                                        </p>
+                                        <p class="text-sm text-gray-500">
+                                            Category: {{ product.category.name }}
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium 
+                                                     {% if product.stock == 0 %}bg-red-100 text-red-800
+                                                     {% else %}bg-yellow-100 text-yellow-800{% endif %}">
+                                            Stock: {{ product.stock }}
+                                        </span>
+                                    </div>
+                                </div>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    <div class="mt-6">
+                        <a href="{{ url_for('admin.manage_products') }}" 
+                           class="w-full flex justify-center items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                            View all products
+                        </a>
+                    </div>
+                {% else %}
+                    <p class="text-gray-500 text-sm">No products with low stock</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script>
+    // Fetch updated stats periodically
+    function updateStats() {
+        fetch('/api/stats/dashboard')
+            .then(response => response.json())
+            .then(data => {
+                // Update stats cards
+                document.querySelector('.stats-card:nth-child(1) .stats-card-value').textContent = data.products.total;
+                document.querySelector('.stats-card:nth-child(2) .stats-card-value').textContent = data.orders.total;
+                document.querySelector('.stats-card:nth-child(3) .stats-card-value').textContent = data.users.total;
+                document.querySelector('.stats-card:nth-child(4) .stats-card-value').textContent = data.pages.published;
+            })
+            .catch(error => console.error('Error updating stats:', error));
+    }
+
+    // Update stats every 5 minutes
+    setInterval(updateStats, 300000);
+</script>
+{% endblock %}
