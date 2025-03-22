@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Order Has Been Delivered</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            background: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .header {
+            text-align: center;
+            padding: 20px 0;
+            border-bottom: 1px solid #eee;
+        }
+        .logo {
+            max-width: 200px;
+            height: auto;
+        }
+        .content {
+            padding: 20px 0;
+        }
+        .delivery-info {
+            background: #f0fdf4;
+            padding: 20px;
+            border-radius: 6px;
+            margin: 20px 0;
+            text-align: center;
+            border: 1px solid #86efac;
+        }
+        .delivery-icon {
+            font-size: 48px;
+            color: #22c55e;
+            margin-bottom: 10px;
+        }
+        .order-details {
+            background: #f9fafb;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 20px 0;
+        }
+        .order-items {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        .order-items th,
+        .order-items td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+        .order-items th {
+            background: #f9fafb;
+        }
+        .button {
+            display: inline-block;
+            padding: 12px 24px;
+            background-color: #3b82f6;
+            color: #ffffff;
+            text-decoration: none;
+            border-radius: 6px;
+            margin: 20px 0;
+        }
+        .review-button {
+            background-color: #22c55e;
+        }
+        .shipping-status {
+            display: flex;
+            justify-content: space-between;
+            margin: 30px 0;
+            position: relative;
+        }
+        .shipping-status::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: #22c55e;
+            z-index: 1;
+        }
+        .status-step {
+            position: relative;
+            z-index: 2;
+            background: white;
+            padding: 0 10px;
+            text-align: center;
+        }
+        .status-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #22c55e;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 10px;
+        }
+        .footer {
+            text-align: center;
+            padding: 20px 0;
+            color: #6b7280;
+            font-size: 14px;
+            border-top: 1px solid #eee;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <img src="{{ url_for('static', filename='images/logo.png', _external=True) }}" alt="Logo" class="logo">
+            <h1>Your Order Has Been Delivered!</h1>
+        </div>
+
+        <div class="content">
+            <p>Dear {{ order.first_name }},</p>
+            
+            <div class="delivery-info">
+                <div class="delivery-icon">✓</div>
+                <h2>Successfully Delivered</h2>
+                <p>Your order was delivered on {{ order.delivery_date|datetime }}</p>
+            </div>
+
+            <div class="shipping-status">
+                <div class="status-step">
+                    <div class="status-icon">✓</div>
+                    <p>Order Placed</p>
+                </div>
+                <div class="status-step">
+                    <div class="status-icon">✓</div>
+                    <p>Processing</p>
+                </div>
+                <div class="status-step">
+                    <div class="status-icon">✓</div>
+                    <p>Shipped</p>
+                </div>
+                <div class="status-step">
+                    <div class="status-icon">✓</div>
+                    <p>Delivered</p>
+                </div>
+            </div>
+
+            <div class="order-details">
+                <h2>Order Details</h2>
+                <p><strong>Order Number:</strong> #{{ order.id }}</p>
+                <p><strong>Order Date:</strong> {{ order.created_at|datetime }}</p>
+                <p><strong>Delivery Date:</strong> {{ order.delivery_date|datetime }}</p>
+            </div>
+
+            <h2>Delivered Items</h2>
+            <table class="order-items">
+                <thead>
+                    <tr>
+                        <th>Item</th>
+                        <th>Quantity</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in order.items %}
+                    <tr>
+                        <td>{{ item.product.name }}</td>
+                        <td>{{ item.quantity }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            <div style="text-align: center;">
+                <p>We'd love to hear your thoughts about your order!</p>
+                <a href="{{ url_for('order.review', id=order.id, _external=True) }}" 
+                   class="button review-button">
+                    Write a Review
+                </a>
+            </div>
+
+            <p>You can view your complete order details by clicking the button below:</p>
+            <a href="{{ url_for('order.detail', id=order.id, _external=True) }}" class="button">View Order Details</a>
+
+            <p>If you have any questions or concerns about your delivery, please don't hesitate to contact our customer service team.</p>
+
+            <p>Thank you for shopping with us!</p>
+
+            <p>Best regards,<br>Your Store Team</p>
+        </div>
+
+        <div class="footer">
+            <p>This email was sent to {{ order.email }}</p>
+            <p>© {{ now.year }} Your Store. All rights reserved.</p>
+        </div>
+    </div>
+</body>
+</html>
