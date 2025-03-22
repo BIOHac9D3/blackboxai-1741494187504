@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+
+{% block title %}Home{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Hero Section -->
+    <div class="text-center py-16 bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg shadow-lg mb-12">
+        <h1 class="text-4xl font-bold text-white mb-4">Welcome to Our CMS</h1>
+        <p class="text-xl text-white mb-8">A modern content management system built with Flask and Tailwind CSS.</p>
+        <a href="{{ url_for('product.index') }}" 
+           class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-blue-700 bg-white hover:bg-gray-50">
+            Browse Products
+            <i class="fas fa-arrow-right ml-2"></i>
+        </a>
+    </div>
+
+    <!-- Featured Products -->
+    {% if featured_products %}
+    <div class="mb-12">
+        <h2 class="text-2xl font-bold text-gray-900 mb-6">Featured Products</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {% for product in featured_products %}
+            <div class="group relative">
+                <div class="relative w-full h-80 rounded-lg overflow-hidden bg-white shadow-md group-hover:shadow-lg">
+                    {% if product.image %}
+                        <img src="{{ url_for('static', filename=product.image) }}"
+                             alt="{{ product.name }}"
+                             class="w-full h-full object-center object-cover">
+                    {% else %}
+                        <div class="w-full h-full bg-gray-200 flex items-center justify-center">
+                            <i class="fas fa-box text-gray-400 text-4xl"></i>
+                        </div>
+                    {% endif %}
+                    {% if product.stock < 1 %}
+                        <span class="absolute top-0 right-0 m-2 px-2 py-1 bg-red-600 text-white text-xs font-bold rounded">
+                            Out of Stock
+                        </span>
+                    {% endif %}
+                    <span class="absolute top-0 left-0 m-2 px-2 py-1 bg-blue-600 text-white text-xs font-bold rounded">
+                        Featured
+                    </span>
+                </div>
+                <div class="mt-4 flex justify-between">
+                    <div>
+                        <h3 class="text-sm text-gray-700">
+                            <a href="{{ url_for('product.detail', slug=product.slug) }}" class="hover:text-blue-600">
+                                {{ product.name }}
+                            </a>
+                        </h3>
+                        <p class="mt-1 text-sm text-gray-500">{{ product.category.name }}</p>
+                    </div>
+                    <p class="text-sm font-medium text-gray-900">${{ "%.2f"|format(product.price) }}</p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Categories -->
+    {% if categories %}
+    <div>
+        <h2 class="text-2xl font-bold text-gray-900 mb-6">Shop by Category</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {% for category in categories %}
+            <a href="{{ url_for('product.index', category=category.id) }}" 
+               class="group block relative rounded-lg overflow-hidden bg-white shadow-md hover:shadow-lg">
+                <div class="aspect-w-3 aspect-h-2">
+                    <div class="w-full h-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center p-8">
+                        <i class="fas fa-box text-white text-4xl mb-4"></i>
+                    </div>
+                </div>
+                <div class="p-4">
+                    <h3 class="text-lg font-medium text-gray-900">{{ category.name }}</h3>
+                    <p class="mt-1 text-sm text-gray-500">{{ category.products|length }} Products</p>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
