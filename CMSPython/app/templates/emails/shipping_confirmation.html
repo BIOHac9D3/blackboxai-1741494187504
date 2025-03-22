@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Order Has Shipped</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            background: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .header {
+            text-align: center;
+            padding: 20px 0;
+            border-bottom: 1px solid #eee;
+        }
+        .logo {
+            max-width: 200px;
+            height: auto;
+        }
+        .content {
+            padding: 20px 0;
+        }
+        .tracking-info {
+            background: #f9fafb;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        .tracking-number {
+            font-size: 24px;
+            color: #3b82f6;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        .order-details {
+            background: #f9fafb;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 20px 0;
+        }
+        .order-items {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        .order-items th,
+        .order-items td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+        .order-items th {
+            background: #f9fafb;
+        }
+        .button {
+            display: inline-block;
+            padding: 12px 24px;
+            background-color: #3b82f6;
+            color: #ffffff;
+            text-decoration: none;
+            border-radius: 6px;
+            margin: 20px 0;
+        }
+        .shipping-status {
+            display: flex;
+            justify-content: space-between;
+            margin: 30px 0;
+            position: relative;
+        }
+        .shipping-status::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: #e5e7eb;
+            z-index: 1;
+        }
+        .status-step {
+            position: relative;
+            z-index: 2;
+            background: white;
+            padding: 0 10px;
+            text-align: center;
+        }
+        .status-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #3b82f6;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 10px;
+        }
+        .footer {
+            text-align: center;
+            padding: 20px 0;
+            color: #6b7280;
+            font-size: 14px;
+            border-top: 1px solid #eee;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <img src="{{ url_for('static', filename='images/logo.png', _external=True) }}" alt="Logo" class="logo">
+            <h1>Your Order Has Shipped!</h1>
+        </div>
+
+        <div class="content">
+            <p>Dear {{ order.first_name }},</p>
+            
+            <p>Great news! Your order is on its way to you. Here's everything you need to know about your shipment:</p>
+
+            <div class="tracking-info">
+                <h2>Tracking Information</h2>
+                <p class="tracking-number">{{ order.tracking_number }}</p>
+                <a href="{{ tracking_url }}" class="button">Track Your Package</a>
+            </div>
+
+            <div class="shipping-status">
+                <div class="status-step">
+                    <div class="status-icon">✓</div>
+                    <p>Order Placed</p>
+                </div>
+                <div class="status-step">
+                    <div class="status-icon">✓</div>
+                    <p>Processing</p>
+                </div>
+                <div class="status-step">
+                    <div class="status-icon">✓</div>
+                    <p>Shipped</p>
+                </div>
+                <div class="status-step">
+                    <div class="status-icon">•</div>
+                    <p>Delivered</p>
+                </div>
+            </div>
+
+            <div class="order-details">
+                <h2>Order Details</h2>
+                <p><strong>Order Number:</strong> #{{ order.id }}</p>
+                <p><strong>Order Date:</strong> {{ order.created_at|datetime }}</p>
+                <p><strong>Estimated Delivery:</strong> {{ estimated_delivery|datetime }}</p>
+            </div>
+
+            <h2>Shipping Address</h2>
+            <div class="order-details">
+                <p>{{ order.first_name }} {{ order.last_name }}</p>
+                <p>{{ order.address }}</p>
+                {% if order.address2 %}
+                    <p>{{ order.address2 }}</p>
+                {% endif %}
+                <p>{{ order.city }}, {{ order.state }} {{ order.zip_code }}</p>
+            </div>
+
+            <h2>Items Shipped</h2>
+            <table class="order-items">
+                <thead>
+                    <tr>
+                        <th>Item</th>
+                        <th>Quantity</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in order.items %}
+                    <tr>
+                        <td>{{ item.product.name }}</td>
+                        <td>{{ item.quantity }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            <p>You can view your complete order details by clicking the button below:</p>
+            <a href="{{ url_for('order.detail', id=order.id, _external=True) }}" class="button">View Order Details</a>
+
+            <p>If you have any questions about your shipment, please don't hesitate to contact our customer service team.</p>
+
+            <p>Best regards,<br>Your Store Team</p>
+        </div>
+
+        <div class="footer">
+            <p>This email was sent to {{ order.email }}</p>
+            <p>© {{ now.year }} Your Store. All rights reserved.</p>
+        </div>
+    </div>
+</body>
+</html>
