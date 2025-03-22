@@ -1,0 +1,152 @@
+{% extends "base.html" %}
+
+{% block title %}Shopping Cart{% endblock %}
+
+{% block content %}
+<div class="bg-white">
+    <div class="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+        <h1 class="text-3xl font-extrabold text-gray-900">Shopping Cart</h1>
+
+        {% if cart.items %}
+            <div class="mt-8">
+                <div class="flow-root">
+                    <ul class="-my-6 divide-y divide-gray-200">
+                        {% for item in cart.items %}
+                        <li class="py-6 flex">
+                            <!-- Product Image -->
+                            <div class="flex-shrink-0 w-24 h-24 rounded-lg overflow-hidden">
+                                {% if item.product.image %}
+                                    <img src="{{ url_for('static', filename=item.product.image) }}"
+                                         alt="{{ item.product.name }}"
+                                         class="w-full h-full object-center object-cover">
+                                {% else %}
+                                    <div class="w-full h-full bg-gray-200 flex items-center justify-center">
+                                        <i class="fas fa-box text-gray-400 text-2xl"></i>
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Product Details -->
+                            <div class="ml-4 flex-1 flex flex-col">
+                                <div>
+                                    <div class="flex justify-between text-base font-medium text-gray-900">
+                                        <h3>
+                                            <a href="{{ url_for('product.detail', slug=item.product.slug) }}">
+                                                {{ item.product.name }}
+                                            </a>
+                                        </h3>
+                                        <p class="ml-4">${{ "%.2f"|format(item.total) }}</p>
+                                    </div>
+                                    <p class="mt-1 text-sm text-gray-500">{{ item.product.category.name }}</p>
+                                </div>
+                                <div class="flex-1 flex items-end justify-between text-sm">
+                                    <!-- Quantity Selector -->
+                                    <div class="flex items-center">
+                                        <form method="POST" 
+                                              action="{{ url_for('cart.update_item') }}"
+                                              class="flex items-center"
+                                              id="update-form-{{ item.id }}">
+                                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                            <input type="hidden" name="item_id" value="{{ item.id }}">
+                                            <label for="quantity-{{ item.id }}" class="sr-only">Quantity</label>
+                                            <select id="quantity-{{ item.id }}" 
+                                                    name="quantity" 
+                                                    onchange="document.getElementById('update-form-{{ item.id }}').submit()"
+                                                    class="rounded-lg border-gray-300 focus:border-blue-500 focus:ring-blue-500">
+                                                {% for i in range(1, item.product.stock + 1) %}
+                                                    <option value="{{ i }}" {% if i == item.quantity %}selected{% endif %}>
+                                                        {{ i }}
+                                                    </option>
+                                                {% endfor %}
+                                            </select>
+                                        </form>
+                                    </div>
+
+                                    <!-- Remove Button -->
+                                    <div class="flex">
+                                        <form method="POST" action="{{ url_for('cart.remove_item') }}">
+                                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                            <input type="hidden" name="item_id" value="{{ item.id }}">
+                                            <button type="submit" class="font-medium text-red-600 hover:text-red-500">
+                                                Remove
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Cart Summary -->
+            <div class="mt-8 border-t border-gray-200 pt-8">
+                <div class="flex justify-between text-base font-medium text-gray-900">
+                    <p>Subtotal</p>
+                    <p>${{ "%.2f"|format(cart.subtotal) }}</p>
+                </div>
+                <p class="mt-0.5 text-sm text-gray-500">Shipping and taxes calculated at checkout.</p>
+                <div class="mt-6">
+                    <a href="{{ url_for('order.checkout') }}" 
+                       class="flex justify-center items-center px-6 py-3 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-blue-600 hover:bg-blue-700">
+                        Checkout
+                    </a>
+                </div>
+                <div class="mt-6 flex justify-center text-sm text-center text-gray-500">
+                    <p>
+                        or
+                        <a href="{{ url_for('product.index') }}" class="text-blue-600 font-medium hover:text-blue-500">
+                            Continue Shopping<span aria-hidden="true"> &rarr;</span>
+                        </a>
+                    </p>
+                </div>
+            </div>
+        {% else %}
+            <div class="text-center py-12">
+                <div class="text-gray-400 mb-4">
+                    <i class="fas fa-shopping-cart text-6xl"></i>
+                </div>
+                <h3 class="text-lg font-medium text-gray-900">Your cart is empty</h3>
+                <p class="mt-1 text-sm text-gray-500">
+                    Start adding some products to your cart!
+                </p>
+                <div class="mt-6">
+                    <a href="{{ url_for('product.index') }}" 
+                       class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700">
+                        Browse Products
+                    </a>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script>
+    // Handle quantity updates
+    document.querySelectorAll('select[name="quantity"]').forEach(select => {
+        select.addEventListener('change', function() {
+            const form = this.closest('form');
+            const submitButton = form.querySelector('button[type="submit"]');
+            if (submitButton) {
+                submitButton.disabled = true;
+            }
+            form.submit();
+        });
+    });
+
+    // Handle remove buttons
+    document.querySelectorAll('form[action*="remove_item"]').forEach(form => {
+        form.addEventListener('submit', function(e) {
+            const button = this.querySelector('button');
+            if (button) {
+                button.disabled = true;
+                button.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Removing...';
+            }
+        });
+    });
+</script>
+{% endblock %}
