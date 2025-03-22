@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Confirmation</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            background: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .header {
+            text-align: center;
+            padding: 20px 0;
+            border-bottom: 1px solid #eee;
+        }
+        .logo {
+            max-width: 200px;
+            height: auto;
+        }
+        .content {
+            padding: 20px 0;
+        }
+        .order-details {
+            background: #f9fafb;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 20px 0;
+        }
+        .order-items {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        .order-items th,
+        .order-items td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+        .order-items th {
+            background: #f9fafb;
+        }
+        .total-row {
+            font-weight: bold;
+        }
+        .button {
+            display: inline-block;
+            padding: 12px 24px;
+            background-color: #3b82f6;
+            color: #ffffff;
+            text-decoration: none;
+            border-radius: 6px;
+            margin: 20px 0;
+        }
+        .footer {
+            text-align: center;
+            padding: 20px 0;
+            color: #6b7280;
+            font-size: 14px;
+            border-top: 1px solid #eee;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <img src="{{ url_for('static', filename='images/logo.png', _external=True) }}" alt="Logo" class="logo">
+            <h1>Order Confirmation</h1>
+        </div>
+
+        <div class="content">
+            <p>Dear {{ order.first_name }},</p>
+            
+            <p>Thank you for your order! We're pleased to confirm that we've received your order and it's being processed.</p>
+
+            <div class="order-details">
+                <p><strong>Order Number:</strong> #{{ order.id }}</p>
+                <p><strong>Order Date:</strong> {{ order.created_at|datetime }}</p>
+                <p><strong>Status:</strong> {{ order.status|title }}</p>
+            </div>
+
+            <h2>Order Summary</h2>
+            <table class="order-items">
+                <thead>
+                    <tr>
+                        <th>Item</th>
+                        <th>Quantity</th>
+                        <th>Price</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in order.items %}
+                    <tr>
+                        <td>{{ item.product.name }}</td>
+                        <td>{{ item.quantity }}</td>
+                        <td>${{ "%.2f"|format(item.price) }}</td>
+                    </tr>
+                    {% endfor %}
+                    <tr>
+                        <td colspan="2">Subtotal</td>
+                        <td>${{ "%.2f"|format(order.subtotal) }}</td>
+                    </tr>
+                    <tr>
+                        <td colspan="2">Shipping</td>
+                        <td>${{ "%.2f"|format(order.shipping) }}</td>
+                    </tr>
+                    <tr>
+                        <td colspan="2">Tax</td>
+                        <td>${{ "%.2f"|format(order.tax) }}</td>
+                    </tr>
+                    <tr class="total-row">
+                        <td colspan="2">Total</td>
+                        <td>${{ "%.2f"|format(order.total) }}</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h2>Shipping Information</h2>
+            <div class="order-details">
+                <p>{{ order.first_name }} {{ order.last_name }}</p>
+                <p>{{ order.address }}</p>
+                {% if order.address2 %}
+                    <p>{{ order.address2 }}</p>
+                {% endif %}
+                <p>{{ order.city }}, {{ order.state }} {{ order.zip_code }}</p>
+                <p>{{ order.email }}</p>
+                {% if order.phone %}
+                    <p>{{ order.phone }}</p>
+                {% endif %}
+            </div>
+
+            <p>You can track your order status by clicking the button below:</p>
+            <a href="{{ url_for('order.detail', id=order.id, _external=True) }}" class="button">View Order Status</a>
+
+            <p>If you have any questions about your order, please don't hesitate to contact our customer service team.</p>
+
+            <p>Best regards,<br>Your Store Team</p>
+        </div>
+
+        <div class="footer">
+            <p>This email was sent to {{ order.email }}</p>
+            <p>© {{ now.year }} Your Store. All rights reserved.</p>
+        </div>
+    </div>
+</body>
+</html>
